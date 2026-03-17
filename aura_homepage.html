@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --aura: #7C5CBF;
+    --aura-light: #A98DE0;
+    --mint: #3DBFA3;
+    --amber: #F0A045;
+    --bg: #0B0B10;
+    --surface: #14141C;
+    --surface2: #1C1C28;
+    --text: #EAE8F5;
+    --muted: #8A87A8;
+    --border: rgba(124,92,191,0.18);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background orbs */
+  .orb-container {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.22;
+  }
+  .orb-1 { width: 600px; height: 600px; background: var(--aura); top: -200px; left: -100px; animation: drift1 12s ease-in-out infinite; }
+  .orb-2 { width: 400px; height: 400px; background: var(--mint); bottom: -100px; right: -80px; animation: drift2 15s ease-in-out infinite; }
+  .orb-3 { width: 300px; height: 300px; background: var(--amber); top: 50%; left: 60%; animation: drift3 10s ease-in-out infinite; }
+
+  @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
+  @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,-30px)} }
+  @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-50px)} }
+
+  .wrapper { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    background: rgba(11,11,16,0.6);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-ring {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: conic-gradient(var(--aura), var(--mint), var(--amber), var(--aura));
+    animation: spin 6s linear infinite;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-ring::after {
+    content: ''; width: 26px; height: 26px; border-radius: 50%; background: var(--bg);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .logo-text { font-family: 'DM Serif Display', serif; font-size: 22px; letter-spacing: 3px; color: var(--text); }
+  .logo-sub { font-size: 10px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
+  .nav-links { display: flex; gap: 28px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--aura); color: #fff; border: none; padding: 9px 22px;
+    border-radius: 50px; font-size: 13px; font-weight: 500; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; letter-spacing: 0.4px;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .nav-cta:hover { background: var(--aura-light); transform: scale(1.03); }
+
+  /* HERO */
+  .hero { padding: 100px 0 80px; text-align: center; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(124,92,191,0.12); border: 1px solid rgba(124,92,191,0.3);
+    border-radius: 50px; padding: 6px 16px; font-size: 12px; color: var(--aura-light);
+    letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 36px;
+  }
+  .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.4)} }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(42px, 7vw, 82px);
+    line-height: 1.07;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  .hero h1 em { font-style: italic; color: var(--aura-light); }
+  .hero p {
+    font-size: 18px; color: var(--muted); max-width: 520px; margin: 0 auto 48px;
+    line-height: 1.7; font-weight: 300;
+  }
+
+  /* Chat Input Demo */
+  .chat-demo {
+    max-width: 640px; margin: 0 auto 64px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 20px 22px;
+    box-shadow: 0 0 60px rgba(124,92,191,0.1);
+  }
+  .chat-messages { min-height: 80px; margin-bottom: 14px; }
+  .chat-msg {
+    display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px;
+    opacity: 0; transform: translateY(8px);
+    animation: fadeUp 0.5s forwards;
+  }
+  .chat-msg:nth-child(1) { animation-delay: 0.2s; }
+  .chat-msg:nth-child(2) { animation-delay: 1.2s; }
+  @keyframes fadeUp { to { opacity:1; transform: translateY(0); } }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+  .avatar-user { background: rgba(124,92,191,0.25); color: var(--aura-light); }
+  .avatar-aura { background: rgba(61,191,163,0.2); color: var(--mint); font-family: 'DM Serif Display', serif; }
+  .bubble {
+    background: var(--surface2); border-radius: 14px; padding: 10px 14px;
+    font-size: 14px; color: var(--text); line-height: 1.5; max-width: 460px;
+  }
+  .bubble.aura-bubble { background: rgba(61,191,163,0.08); border: 1px solid rgba(61,191,163,0.15); }
+  .bubble .tag {
+    display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px;
+    font-weight: 500; margin-top: 6px; margin-right: 4px;
+  }
+  .tag-mental { background: rgba(124,92,191,0.2); color: var(--aura-light); }
+  .tag-physical { background: rgba(240,160,69,0.2); color: var(--amber); }
+  .chat-input-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 50px;
+    padding: 10px 16px;
+  }
+  .chat-input-row input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+  }
+  .chat-input-row input::placeholder { color: var(--muted); }
+  .send-btn {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--aura);
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s;
+  }
+  .send-btn:hover { transform: scale(1.1); }
+  .send-btn svg { width: 14px; height: 14px; fill: #fff; }
+
+  /* Stats */
+  .stats { display: flex; justify-content: center; gap: 48px; margin-bottom: 80px; }
+  .stat-item { text-align: center; }
+  .stat-num { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--text); }
+  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* Features */
+  .section-label {
+    text-align: center; font-size: 11px; letter-spacing: 2px; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif; font-size: clamp(28px, 4vw, 42px);
+    text-align: center; margin-bottom: 48px; line-height: 1.2;
+  }
+
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 80px;
+  }
+  @media (max-width: 720px) { .features-grid { grid-template-columns: 1fr; } }
+
+  .feature-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 28px 24px;
+    transition: border-color 0.3s, transform 0.2s;
+    cursor: default;
+  }
+  .feature-card:hover { border-color: rgba(124,92,191,0.4); transform: translateY(-3px); }
+  .feature-icon {
+    width: 48px; height: 48px; border-radius: 14px; margin-bottom: 18px;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+  }
+  .icon-mind { background: rgba(124,92,191,0.15); }
+  .icon-body { background: rgba(240,160,69,0.15); }
+  .icon-ai   { background: rgba(61,191,163,0.15); }
+  .feature-card h3 {
+    font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 10px;
+  }
+  .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+  .feature-tag {
+    display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 20px;
+    background: rgba(124,92,191,0.15); color: var(--aura-light); margin-top: 14px;
+  }
+  .feature-card:nth-child(2) .feature-tag { background: rgba(240,160,69,0.12); color: var(--amber); }
+  .feature-card:nth-child(3) .feature-tag { background: rgba(61,191,163,0.12); color: var(--mint); }
+
+  /* Flow Preview */
+  .flow-section { margin-bottom: 80px; }
+  .flow-track {
+    display: flex; gap: 0; align-items: stretch;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+    overflow: hidden;
+  }
+  .flow-step {
+    flex: 1; padding: 24px 20px; position: relative;
+    border-right: 1px solid var(--border); transition: background 0.2s;
+  }
+  .flow-step:last-child { border-right: none; }
+  .flow-step:hover { background: rgba(124,92,191,0.05); }
+  .flow-num {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--surface2);
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--muted); margin-bottom: 12px; font-weight: 500;
+  }
+  .flow-step h4 { font-size: 14px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+  .flow-step p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .flow-arrow {
+    position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+    z-index: 2; color: var(--aura); font-size: 16px;
+  }
+
+  /* Module cards */
+  .modules-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 80px; }
+  @media (max-width: 640px) { .modules-row { grid-template-columns: 1fr; } }
+
+  .module-card {
+    border-radius: 20px; padding: 28px; position: relative; overflow: hidden;
+  }
+  .module-mental {
+    background: linear-gradient(135deg, rgba(124,92,191,0.15) 0%, rgba(124,92,191,0.04) 100%);
+    border: 1px solid rgba(124,92,191,0.25);
+  }
+  .module-physical {
+    background: linear-gradient(135deg, rgba(240,160,69,0.12) 0%, rgba(240,160,69,0.03) 100%);
+    border: 1px solid rgba(240,160,69,0.2);
+  }
+  .module-card h3 { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 10px; }
+  .module-card p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+  .module-list { list-style: none; }
+  .module-list li {
+    font-size: 13px; color: var(--text); padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .module-list li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--aura-light); flex-shrink: 0; }
+  .module-physical .module-list li::before { background: var(--amber); }
+  .module-bg-icon {
+    position: absolute; right: 20px; top: 20px;
+    font-size: 72px; opacity: 0.05; pointer-events: none;
+  }
+
+  /* CTA */
+  .cta-section {
+    text-align: center; padding: 60px 40px; margin-bottom: 60px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 28px;
+    position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(124,92,191,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-section h2 { font-family: 'DM Serif Display', serif; font-size: clamp(26px, 4vw, 38px); margin-bottom: 14px; }
+  .cta-section p { color: var(--muted); font-size: 16px; margin-bottom: 32px; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--aura); color: #fff; border: none; padding: 13px 30px;
+    border-radius: 50px; font-size: 15px; font-weight: 500; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: transform 0.15s, background 0.2s;
+  }
+  .btn-primary:hover { background: var(--aura-light); transform: scale(1.03); }
+  .btn-outline {
+    background: transparent; color: var(--text); border: 1px solid var(--border);
+    padding: 13px 30px; border-radius: 50px; font-size: 15px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: border-color 0.2s;
+  }
+  .btn-outline:hover { border-color: rgba(124,92,191,0.5); }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border); padding: 28px 0;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px; color: var(--muted);
+  }
+  footer a { color: var(--muted); text-decoration: none; margin-left: 20px; }
+  footer a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="orb-container">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<nav>
+  <div class="wrapper">
+    <div class="nav-inner">
+      <div class="logo">
+        <div class="logo-ring"></div>
+        <div>
+          <div class="logo-text">AURA</div>
+          <div class="logo-sub">AI Unified Relief Assistant</div>
+        </div>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#">Features</a></li>
+        <li><a href="#">How it works</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+      <button class="nav-cta">Try AURA Free</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="wrapper">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        AI Health Companion · Now in Beta
+      </div>
+      <h1>Your mind &amp; body,<br><em>heard & healed</em></h1>
+      <p>Tell AURA how you're feeling. It listens, understands, and guides you — mentally and physically — before your first doctor's visit.</p>
+
+      <div class="chat-demo">
+        <div class="chat-messages" id="chat-demo">
+          <div class="chat-msg">
+            <div class="avatar avatar-user">U</div>
+            <div class="bubble">"I'm really stressed today and my chest feels tight. Can't focus at all."</div>
+          </div>
+          <div class="chat-msg">
+            <div class="avatar avatar-aura">A</div>
+            <div class="bubble aura-bubble">
+              I hear you. Let's take care of both. Starting with a 2-min breathing exercise for your stress, then we'll assess that chest tightness together.
+              <br>
+              <span class="tag tag-mental">🧠 Mental module active</span>
+              <span class="tag tag-physical">🫀 Physical triage queued</span>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" placeholder="Tell AURA how you're feeling..." />
+          <button class="send-btn">
+            <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-item"><div class="stat-num">2 min</div><div class="stat-label">avg. relief response</div></div>
+        <div class="stat-item"><div class="stat-num">3-tier</div><div class="stat-label">symptom risk scoring</div></div>
+        <div class="stat-item"><div class="stat-num">24/7</div><div class="stat-label">always available</div></div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <div class="section-label">Core capabilities</div>
+    <h2 class="section-title">Everything you need,<br>before the clinic</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon icon-mind">🧠</div>
+        <h3>Mental Relief</h3>
+        <p>Detects stress, anxiety, and low mood through natural conversation. Offers guided meditation, breathing exercises, and yoga routines.</p>
+        <span class="feature-tag">Guided meditation</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-body">🫀</div>
+        <h3>Physical Triage</h3>
+        <p>Analyses your symptoms with a probabilistic risk engine. Categorizes severity — Low, Medium, High — and gives you actionable next steps.</p>
+        <span class="feature-tag">Risk assessment</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-ai">✦</div>
+        <h3>Unified AI Flow</h3>
+        <p>When both mind and body are affected, AURA handles both simultaneously — routing to the right module while maintaining context across the session.</p>
+        <span class="feature-tag">Smart routing</span>
+      </div>
+    </div>
+
+    <!-- FLOW PREVIEW -->
+    <section class="flow-section">
+      <div class="section-label">How it works</div>
+      <h2 class="section-title">Simple steps, real relief</h2>
+      <div class="flow-track">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <h4>You speak</h4>
+          <p>Type or voice-share how you feel, naturally.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <h4>AURA listens</h4>
+          <p>NLP detects mental and physical cues instantly.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <h4>Smart routing</h4>
+          <p>Directs to mental, physical, or combined modules.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <h4>Guided action</h4>
+          <p>Personalized exercises, assessments, and care tips.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <h4>You feel better</h4>
+          <p>Session logged. Trends tracked. Always improving.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULES -->
+    <div class="section-label">Dual-module system</div>
+    <h2 class="section-title">Two modules, one companion</h2>
+    <div class="modules-row">
+      <div class="module-card module-mental">
+        <div class="module-bg-icon">🧠</div>
+        <h3>Mental Health Module</h3>
+        <p>Responds to stress, anxiety, and mood changes with evidence-based interventions.</p>
+        <ul class="module-list">
+          <li>Guided breathing &amp; meditation</li>
+          <li>Personalised yoga routines</li>
+          <li>Mood-boosting content</li>
+          <li>Stress coping strategies</li>
+          <li>Session history &amp; trends</li>
+        </ul>
+      </div>
+      <div class="module-card module-physical">
+        <div class="module-bg-icon">🫀</div>
+        <h3>Physical Health Module</h3>
+        <p>Analyses symptoms, scores risk, and provides preventive guidance before a diagnosis.</p>
+        <ul class="module-list">
+          <li>Symptom severity scoring</li>
+          <li>Low / Medium / High risk triage</li>
+          <li>Self-care &amp; precaution tips</li>
+          <li>Emergency contact escalation</li>
+          <li>Diet &amp; posture guidance</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <h2>Not a doctor — your <em style="font-style:italic;color:var(--aura-light)">first step</em> toward better health</h2>
+      <p>Join thousands using AURA as their personal health companion, available any time.</p>
+      <div class="cta-btns">
+        <button class="btn-primary">Get Early Access</button>
+        <button class="btn-outline">Watch Demo</button>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<div class="wrapper">
+  <footer>
+    <span>© 2025 AURA Health · Not a medical device</span>
+    <div>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Contact</a>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

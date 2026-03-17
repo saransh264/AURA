@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: transparent; }
+  .diagram-wrap { padding: 8px 0; }
+  .layer-label {
+    font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase;
+    color: var(--color-text-tertiary); margin-bottom: 10px; padding-left: 4px;
+  }
+  .layer { margin-bottom: 6px; }
+
+  /* Node base */
+  .node {
+    display: inline-flex; align-items: center; gap: 8px;
+    border-radius: 10px; padding: 9px 14px; font-size: 13px;
+    border: 1px solid; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    font-family: 'DM Sans', sans-serif; font-weight: 400;
+    text-align: left; vertical-align: top;
+  }
+  .node:hover { transform: translateY(-2px); }
+  .node-icon { font-size: 15px; flex-shrink: 0; }
+
+  /* Color schemes */
+  .n-purple { background: rgba(124,92,191,0.1); border-color: rgba(124,92,191,0.3); color: #c0a6f7; }
+  .n-teal   { background: rgba(61,191,163,0.1); border-color: rgba(61,191,163,0.25); color: #5cd8bc; }
+  .n-amber  { background: rgba(240,160,69,0.12); border-color: rgba(240,160,69,0.3); color: #f0b965; }
+  .n-red    { background: rgba(230,80,80,0.1); border-color: rgba(230,80,80,0.25); color: #f08080; }
+  .n-gray   { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: var(--color-text-secondary); }
+  .n-green  { background: rgba(80,200,120,0.1); border-color: rgba(80,200,120,0.25); color: #6dda98; }
+  .n-blue   { background: rgba(80,140,230,0.1); border-color: rgba(80,140,230,0.25); color: #82aaee; }
+
+  /* Row containers */
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; margin-bottom: 4px; }
+  .row-center { justify-content: center; }
+  .row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* Layer panel */
+  .layer-panel {
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 8px;
+    border: 1px solid;
+  }
+  .lp-input   { border-color: rgba(124,92,191,0.2); background: rgba(124,92,191,0.04); }
+  .lp-nlp     { border-color: rgba(61,191,163,0.2);  background: rgba(61,191,163,0.03); }
+  .lp-route   { border-color: rgba(240,160,69,0.2);  background: rgba(240,160,69,0.03); }
+  .lp-mental  { border-color: rgba(124,92,191,0.25); background: rgba(124,92,191,0.06); }
+  .lp-physical{ border-color: rgba(240,160,69,0.25); background: rgba(240,160,69,0.05); }
+  .lp-output  { border-color: rgba(80,200,120,0.2);  background: rgba(80,200,120,0.03); }
+
+  /* Arrows between layers */
+  .arrow-row { display: flex; justify-content: center; align-items: center; gap: 24px; margin: 4px 0; }
+  .arr-down {
+    width: 2px; height: 22px; background: var(--color-border-secondary); position: relative;
+    margin: 0 auto;
+  }
+  .arr-down::after {
+    content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+    border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-top: 7px solid var(--color-border-secondary);
+  }
+  .arrow-split {
+    display: flex; justify-content: space-around; padding: 0 80px;
+    margin: 4px 0; gap: 8px;
+  }
+  .arr-branch {
+    flex: 1; height: 22px; position: relative;
+  }
+  .arr-branch::before {
+    content: ''; position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 2px; height: 100%; background: var(--color-border-secondary);
+  }
+  .arr-branch::after {
+    content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+    border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-top: 7px solid var(--color-border-secondary);
+  }
+
+  /* Panel titles */
+  .panel-title {
+    font-size: 11px; font-weight: 500; letter-spacing: 1.2px; text-transform: uppercase;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+  }
+  .panel-title .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .pt-purple .dot { background: #9d7ae0; }
+  .pt-teal .dot { background: #3dc4a8; }
+  .pt-amber .dot { background: #f0a045; }
+  .pt-mental .dot { background: #a98de0; }
+  .pt-physical .dot { background: #f0b965; }
+  .pt-green .dot { background: #5dc880; }
+
+  /* Sub-nodes inside panels */
+  .sub-node {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px;
+    border-radius: 8px; font-size: 12px; margin: 3px; border: 1px solid;
+  }
+
+  .risk-row { display: flex; gap: 8px; margin-top: 8px; }
+  .risk-badge {
+    flex: 1; padding: 8px 10px; border-radius: 8px; text-align: center;
+    font-size: 12px; font-weight: 500; border: 1px solid;
+  }
+  .risk-low    { background: rgba(80,200,120,0.12); border-color: rgba(80,200,120,0.3); color: #6dda98; }
+  .risk-medium { background: rgba(240,160,69,0.12); border-color: rgba(240,160,69,0.3); color: #f0b965; }
+  .risk-high   { background: rgba(230,80,80,0.12); border-color: rgba(230,80,80,0.3); color: #f08080; }
+
+  /* Combined flow indicator */
+  .combined-badge {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: rgba(124,92,191,0.08); border: 1px dashed rgba(124,92,191,0.35);
+    border-radius: 10px; padding: 9px 14px; margin-top: 8px; font-size: 12px;
+    color: #c0a6f7;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px;
+    padding: 14px 16px; border-radius: 12px;
+    border: 1px solid var(--color-border-tertiary);
+    background: var(--color-background-secondary);
+  }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--color-text-secondary); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Tooltip on hover */
+  .node[title]:hover::after {
+    content: attr(title);
+    position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+    background: #1a1a28; color: #eae8f5; padding: 5px 10px;
+    border-radius: 6px; font-size: 11px; white-space: nowrap; pointer-events: none;
+    border: 1px solid rgba(124,92,191,0.3); z-index: 10;
+  }
+  .node { position: relative; }
+</style>
+</head>
+<body>
+<div class="diagram-wrap">
+
+  <!-- LAYER 1: Input -->
+  <div class="layer-panel lp-input">
+    <div class="panel-title pt-purple" style="color:#c0a6f7"><span class="dot"></span>Layer 1 — User Input</div>
+    <div class="row row-center">
+      <div class="node n-purple" title="Type how you feel">💬 Text input</div>
+      <div class="node n-purple" title="Speak to AURA">🎙 Voice input</div>
+      <div class="node n-gray" title="Review past sessions">📋 Session history</div>
+    </div>
+    <div class="combined-badge">
+      Example: <em style="color:#eae8f5;margin:0 4px">"I'm stressed and my chest feels heavy"</em> → natural language, no forms
+    </div>
+  </div>
+
+  <div class="arr-down" style="margin: 0 auto; width: 2px;"></div>
+
+  <!-- LAYER 2: NLP -->
+  <div class="layer-panel lp-nlp">
+    <div class="panel-title pt-teal" style="color:#5cd8bc"><span class="dot"></span>Layer 2 — NLP Processing Engine</div>
+    <div class="row row-center">
+      <div class="node n-teal" title="Sentiment analysis">🔍 Intent detection</div>
+      <div class="node n-teal" title="Mood classification">😟 Sentiment analysis</div>
+      <div class="node n-teal" title="Named entity recognition">🩺 Symptom extraction</div>
+      <div class="node n-teal" title="Emotion detection">⚡ Emotion scoring</div>
+    </div>
+    <div class="row row-center" style="margin-top:8px">
+      <div class="sub-node n-gray">BERT / Hugging Face Transformers</div>
+      <div class="sub-node n-gray">GPT-based NLP model</div>
+      <div class="sub-node n-gray">Rule-based fallback</div>
+    </div>
+  </div>
+
+  <!-- Split arrows -->
+  <div class="arrow-split">
+    <div class="arr-branch"></div>
+    <div class="arr-branch"></div>
+    <div class="arr-branch"></div>
+  </div>
+
+  <!-- LAYER 3: Routing -->
+  <div class="layer-panel lp-route">
+    <div class="panel-title pt-amber" style="color:#f0b965"><span class="dot"></span>Layer 3 — Intelligent Routing</div>
+    <div class="row row-center">
+      <div class="node n-amber">🧠 Mental signal detected</div>
+      <div class="node n-purple" style="border-color:rgba(124,92,191,0.4)">🔄 Combined signal detected</div>
+      <div class="node n-amber">🫀 Physical symptom detected</div>
+    </div>
+  </div>
+
+  <!-- Split to two module columns -->
+  <div class="arrow-split" style="padding: 0 40px;">
+    <div class="arr-branch"></div>
+    <div class="arr-branch"></div>
+  </div>
+
+  <!-- LAYER 4: Dual Modules -->
+  <div class="row-split">
+    <!-- Mental Module -->
+    <div class="layer-panel lp-mental">
+      <div class="panel-title pt-mental" style="color:#c0a6f7"><span class="dot"></span>Mental Health Module</div>
+      <div class="node n-purple" style="display:flex;width:100%;margin-bottom:8px">🧘 Guided breathing (2–5 min)</div>
+      <div class="node n-purple" style="display:flex;width:100%;margin-bottom:8px">🏋 Yoga &amp; stretch routine</div>
+      <div class="node n-purple" style="display:flex;width:100%;margin-bottom:8px">😄 Mood-boosting content</div>
+      <div class="node n-purple" style="display:flex;width:100%">💡 Coping strategies</div>
+      <div style="margin-top:10px;font-size:11px;color:var(--color-text-tertiary);padding:2px">
+        Adapts intensity to stress level score
+      </div>
+    </div>
+    <!-- Physical Module -->
+    <div class="layer-panel lp-physical">
+      <div class="panel-title pt-physical" style="color:#f0b965"><span class="dot"></span>Physical Triage Module</div>
+      <div class="node n-amber" style="display:flex;width:100%;margin-bottom:8px">🔬 Symptom classifier</div>
+      <div class="node n-amber" style="display:flex;width:100%;margin-bottom:8px">📊 Probabilistic risk scoring</div>
+      <div class="risk-row">
+        <div class="risk-badge risk-low">🟢 Low<br><span style="font-size:10px;font-weight:400">Self-care tips</span></div>
+        <div class="risk-badge risk-medium">🟡 Medium<br><span style="font-size:10px;font-weight:400">Consult soon</span></div>
+        <div class="risk-badge risk-high">🔴 High<br><span style="font-size:10px;font-weight:400">Seek help now</span></div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--color-text-tertiary);padding:2px">
+        Emergency contacts escalated at High risk
+      </div>
+    </div>
+  </div>
+
+  <div class="arr-down" style="margin: 0 auto; width: 2px;"></div>
+
+  <!-- LAYER 5: Personalization -->
+  <div class="layer-panel" style="border-color:rgba(80,140,230,0.25);background:rgba(80,140,230,0.04)">
+    <div class="panel-title" style="color:#82aaee"><span class="dot" style="background:#82aaee"></span>Layer 5 — Personalization Engine</div>
+    <div class="row row-center">
+      <div class="node n-blue">📈 Stress history analysis</div>
+      <div class="node n-blue">🎯 Tailored intervention</div>
+      <div class="node n-blue">🔔 Proactive reminders</div>
+      <div class="node n-blue">📦 Session log saved</div>
+    </div>
+  </div>
+
+  <div class="arr-down" style="margin: 0 auto; width: 2px;"></div>
+
+  <!-- LAYER 6: Output -->
+  <div class="layer-panel lp-output">
+    <div class="panel-title pt-green" style="color:#6dda98"><span class="dot"></span>Layer 6 — Output &amp; Feedback</div>
+    <div class="row row-center">
+      <div class="node n-green">📋 Personalised health report</div>
+      <div class="node n-green">📊 Trend dashboard</div>
+      <div class="node n-green">🔁 Follow-up prompts</div>
+      <div class="node n-green">✅ Session complete</div>
+    </div>
+    <div class="combined-badge" style="background:rgba(80,200,120,0.06);border-color:rgba(80,200,120,0.3);color:#6dda98;margin-top:8px">
+      Not a replacement for medical care — your intelligent first step toward better health
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#9d7ae0"></div>Mental health path</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f0a045"></div>Physical symptom path</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3dc4a8"></div>NLP / AI processing</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#82aaee"></div>Personalization layer</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#5dc880"></div>Output / reporting</div>
+  </div>
+
+</div>
+</body>
+</html>
