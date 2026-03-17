@@ -1,1 +1,1 @@
-This the frontend and work flow of our project AURA
+This is our project AURA(AI Unified Relief Assistant)
