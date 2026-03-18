@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AURA – Module UI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090F;--surface:#111118;--surface2:#18181F;--surface3:#202028;
+  --aura:#7C5CBF;--aura-l:#A98DE0;--aura-ll:#D4C2F5;
+  --mint:#2DB89A;--mint-l:#4DD4B8;
+  --amber:#E8953A;--amber-l:#F0B86A;
+  --rose:#D95F7A;--rose-l:#F08098;
+  --text:#EAE8F5;--text2:#9B98BC;--text3:#5A5870;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --r:14px;--r2:20px;--r3:28px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── NAV ── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;
+  background:rgba(9,9,15,0.8);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-ring{
+  width:32px;height:32px;border-radius:50%;
+  background:conic-gradient(var(--aura),var(--mint),var(--amber),var(--aura));
+  animation:spin 6s linear infinite;
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-ring::after{content:'';width:22px;height:22px;border-radius:50%;background:var(--bg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.logo-name{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:3px}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{
+  padding:7px 16px;border-radius:50px;font-size:13px;cursor:pointer;
+  border:1px solid transparent;color:var(--text2);background:transparent;
+  font-family:'DM Sans',sans-serif;transition:all .2s;
+}
+.nav-tab.active,.nav-tab:hover{background:var(--surface2);border-color:var(--border2);color:var(--text)}
+.nav-tab.active{color:var(--aura-l);border-color:rgba(124,92,191,0.3)}
+
+/* ── SCREEN SYSTEM ── */
+.screen{display:none;padding-top:72px;min-height:100vh}
+.screen.active{display:block}
+
+/* ── SCREEN 1: FOLLOW-UP CHAT ── */
+.chat-wrap{max-width:700px;margin:0 auto;padding:32px 20px 120px}
+.chat-header{text-align:center;padding:32px 0 24px}
+.chat-header p{font-family:'DM Serif Display',serif;font-size:26px;line-height:1.3;margin-bottom:8px}
+.chat-header span{font-size:13px;color:var(--text2)}
+
+.aura-status{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:28px;font-size:12px;color:var(--mint-l);
+  letter-spacing:.8px;text-transform:uppercase;
+}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--mint);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+
+.messages{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
+.msg{display:flex;gap:10px;align-items:flex-start;opacity:0;transform:translateY(10px);transition:all .4s}
+.msg.show{opacity:1;transform:translateY(0)}
+.msg.user{flex-direction:row-reverse}
+.av{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;
+}
+.av-aura{background:rgba(124,92,191,0.2);color:var(--aura-l);font-family:'DM Serif Display',serif}
+.av-user{background:rgba(45,184,154,0.15);color:var(--mint-l)}
+.bubble{
+  max-width:80%;padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.6;
+}
+.bubble-aura{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:18px 18px 18px 4px;
+}
+.bubble-user{
+  background:rgba(124,92,191,0.15);border:1px solid rgba(124,92,191,0.25);
+  border-radius:18px 18px 4px 18px;color:var(--aura-ll);
+}
+
+/* Quick reply chips */
+.quick-replies{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.qr{
+  padding:7px 14px;border-radius:50px;font-size:12px;cursor:pointer;
+  border:1px solid rgba(124,92,191,0.3);background:rgba(124,92,191,0.08);
+  color:var(--aura-l);font-family:'DM Sans',sans-serif;transition:all .2s;
+}
+.qr:hover{background:rgba(124,92,191,0.2);border-color:var(--aura)}
+
+/* Detected tags */
+.detect-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.dtag{
+  padding:4px 12px;border-radius:50px;font-size:11px;font-weight:500;
+  display:flex;align-items:center;gap:5px;
+}
+.dtag-mental{background:rgba(124,92,191,0.15);color:var(--aura-l);border:1px solid rgba(124,92,191,0.25)}
+.dtag-physical{background:rgba(232,149,58,0.15);color:var(--amber-l);border:1px solid rgba(232,149,58,0.25)}
+
+/* Activation card */
+.activate-card{
+  background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r2);
+  padding:20px;margin-top:10px;
+}
+.activate-card h4{font-size:14px;font-weight:500;margin-bottom:12px;color:var(--text)}
+.module-btns{display:flex;gap:10px;flex-wrap:wrap}
+.mod-btn{
+  flex:1;min-width:140px;padding:12px 16px;border-radius:var(--r);cursor:pointer;
+  border:1px solid;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:8px;transition:all .2s;
+}
+.mod-btn-mental{background:rgba(124,92,191,0.1);border-color:rgba(124,92,191,0.3);color:var(--aura-l)}
+.mod-btn-mental:hover{background:rgba(124,92,191,0.2)}
+.mod-btn-physical{background:rgba(232,149,58,0.1);border-color:rgba(232,149,58,0.3);color:var(--amber-l)}
+.mod-btn-physical:hover{background:rgba(232,149,58,0.2)}
+.mod-btn-both{background:rgba(45,184,154,0.1);border-color:rgba(45,184,154,0.3);color:var(--mint-l);flex:100%}
+.mod-btn-both:hover{background:rgba(45,184,154,0.2)}
+
+/* Input bar */
+.input-bar{
+  position:fixed;bottom:0;left:0;right:0;
+  padding:16px 20px;background:rgba(9,9,15,0.95);backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+}
+.input-inner{max-width:700px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.chat-in{
+  flex:1;background:var(--surface2);border:1px solid var(--border2);
+  border-radius:50px;padding:11px 18px;color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:14px;outline:none;
+}
+.chat-in::placeholder{color:var(--text3)}
+.send-b{
+  width:40px;height:40px;border-radius:50%;background:var(--aura);border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:transform .15s,background .2s;flex-shrink:0;
+}
+.send-b:hover{transform:scale(1.08);background:var(--aura-l)}
+.send-b svg{width:16px;height:16px;fill:#fff}
+
+/* ── SCREEN 2: MENTAL MODULE ── */
+.module-wrap{max-width:800px;margin:0 auto;padding:32px 20px 60px}
+.module-hero{
+  text-align:center;padding:36px 20px 32px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(124,92,191,0.12) 0%,transparent 70%);
+}
+.module-icon-big{font-size:48px;margin-bottom:14px}
+.module-hero h2{font-family:'DM Serif Display',serif;font-size:32px;margin-bottom:8px}
+.module-hero p{color:var(--text2);font-size:15px;max-width:440px;margin:0 auto}
+
+/* Progress steps */
+.step-track{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  margin:28px 0;
+}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;max-width:120px}
+.step-circle{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;
+  border:2px solid;transition:all .3s;
+}
+.step-circle.done{background:var(--aura);border-color:var(--aura);color:#fff}
+.step-circle.current{background:rgba(124,92,191,0.2);border-color:var(--aura-l);color:var(--aura-l)}
+.step-circle.pending{background:transparent;border-color:var(--text3);color:var(--text3)}
+.step-label{font-size:11px;color:var(--text2);text-align:center;line-height:1.3}
+.step-line{flex:1;height:2px;background:var(--border2);max-width:60px;margin-top:-20px}
+.step-line.done{background:var(--aura)}
+
+/* Section cards */
+.section-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r2);overflow:hidden;margin-bottom:16px;
+}
+.section-card-header{
+  padding:18px 22px;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:background .2s;
+}
+.section-card-header:hover{background:rgba(255,255,255,0.02)}
+.sec-title{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500}
+.sec-badge{
+  font-size:10px;padding:3px 9px;border-radius:50px;font-weight:500;
+}
+.sec-badge-active{background:rgba(45,184,154,0.15);color:var(--mint-l);border:1px solid rgba(45,184,154,0.25)}
+.sec-badge-done{background:rgba(124,92,191,0.15);color:var(--aura-l);border:1px solid rgba(124,92,191,0.25)}
+.sec-badge-lock{background:rgba(255,255,255,0.05);color:var(--text3);border:1px solid var(--border)}
+.sec-body{padding:0 22px 22px;display:none}
+.sec-body.open{display:block}
+
+/* ── BREATHING EXERCISE ── */
+.breath-center{display:flex;flex-direction:column;align-items:center;padding:20px 0}
+.breath-ring-wrap{position:relative;width:180px;height:180px;margin:0 auto 24px}
+.breath-ring{
+  width:180px;height:180px;border-radius:50%;
+  border:3px solid rgba(124,92,191,0.2);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.breath-ring::before{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  border:3px solid var(--aura-l);border-top-color:transparent;border-right-color:transparent;
+  animation:rotate 4s linear infinite;
+}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.breath-inner{
+  width:120px;height:120px;border-radius:50%;
+  background:rgba(124,92,191,0.1);border:2px solid rgba(124,92,191,0.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  animation:breathe 4s ease-in-out infinite;
+}
+@keyframes breathe{
+  0%,100%{transform:scale(1);background:rgba(124,92,191,0.1)}
+  50%{transform:scale(1.15);background:rgba(124,92,191,0.2)}
+}
+.breath-phase{font-family:'DM Serif Display',serif;font-size:15px;color:var(--aura-l)}
+.breath-count{font-size:28px;font-weight:300;color:var(--text)}
+.breath-instruction{font-size:13px;color:var(--text2);text-align:center;margin-bottom:16px}
+.breath-timer{
+  display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);
+  background:var(--surface2);border:1px solid var(--border);border-radius:50px;
+  padding:6px 16px;
+}
+.breath-controls{display:flex;gap:10px;margin-top:20px}
+.ctrl-btn{
+  padding:10px 22px;border-radius:50px;font-size:13px;font-weight:500;
+  cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid;transition:all .2s;
+}
+.ctrl-start{background:var(--aura);color:#fff;border-color:var(--aura)}
+.ctrl-start:hover{background:var(--aura-l)}
+.ctrl-skip{background:transparent;color:var(--text2);border-color:var(--border2)}
+.ctrl-skip:hover{color:var(--text);border-color:var(--border2)}
+
+.checkin-box{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px;margin-top:16px;
+}
+.checkin-box p{font-size:14px;margin-bottom:12px;color:var(--text)}
+.checkin-opts{display:flex;gap:8px;flex-wrap:wrap}
+.checkin-opt{
+  flex:1;min-width:90px;padding:10px;border-radius:var(--r);text-align:center;
+  cursor:pointer;font-size:13px;border:1px solid var(--border2);background:var(--surface);
+  transition:all .2s;font-family:'DM Sans',sans-serif;color:var(--text);
+}
+.checkin-opt:hover{border-color:var(--aura);background:rgba(124,92,191,0.1)}
+.checkin-opt.sel{border-color:var(--aura);background:rgba(124,92,191,0.15);color:var(--aura-l)}
+
+/* ── YOGA CARDS ── */
+.yoga-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:4px}
+.yoga-card{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;cursor:pointer;transition:all .2s;
+}
+.yoga-card:hover{border-color:rgba(124,92,191,0.3);transform:translateY(-2px)}
+.yoga-thumb{
+  height:100px;display:flex;align-items:center;justify-content:center;
+  font-size:44px;position:relative;
+}
+.yoga-thumb-bg-1{background:linear-gradient(135deg,rgba(124,92,191,0.15),rgba(45,184,154,0.1))}
+.yoga-thumb-bg-2{background:linear-gradient(135deg,rgba(232,149,58,0.12),rgba(124,92,191,0.1))}
+.yoga-thumb-bg-3{background:linear-gradient(135deg,rgba(45,184,154,0.12),rgba(80,140,230,0.1))}
+.yoga-thumb-bg-4{background:linear-gradient(135deg,rgba(217,95,122,0.12),rgba(124,92,191,0.1))}
+.yoga-info{padding:12px}
+.yoga-info h5{font-size:13px;font-weight:500;margin-bottom:4px}
+.yoga-info p{font-size:11px;color:var(--text2)}
+.yoga-info .dur{font-size:11px;color:var(--mint-l);margin-top:6px}
+.play-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,0.4);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .2s;border-radius:0;
+}
+.yoga-card:hover .play-overlay{opacity:1}
+.play-circle{
+  width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.9);
+  display:flex;align-items:center;justify-content:center;
+}
+.play-circle svg{width:14px;height:14px;fill:#333;margin-left:2px}
+
+/* ── MOOD CONTENT ── */
+.mood-tabs{display:flex;gap:8px;margin-bottom:16px}
+.mood-tab{
+  padding:7px 16px;border-radius:50px;font-size:12px;cursor:pointer;
+  border:1px solid var(--border);color:var(--text2);background:transparent;
+  font-family:'DM Sans',sans-serif;transition:all .2s;
+}
+.mood-tab.active{background:rgba(217,95,122,0.15);border-color:rgba(217,95,122,0.35);color:var(--rose-l)}
+.mood-tab:hover{border-color:var(--border2);color:var(--text)}
+
+.mood-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.mood-card{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px;text-align:center;cursor:pointer;transition:all .2s;
+}
+.mood-card:hover{border-color:rgba(217,95,122,0.3);transform:translateY(-2px)}
+.mood-card .mc-icon{font-size:32px;margin-bottom:10px}
+.mood-card h5{font-size:13px;font-weight:500;margin-bottom:4px}
+.mood-card p{font-size:11px;color:var(--text2);line-height:1.4}
+
+/* ── SCREEN 3: PHYSICAL MODULE ── */
+.body-select-wrap{padding:16px 0}
+.body-diagram{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  margin-bottom:20px;
+}
+.body-row{display:flex;gap:8px;justify-content:center}
+.body-part{
+  padding:9px 18px;border-radius:50px;font-size:13px;cursor:pointer;
+  border:1px solid var(--border2);color:var(--text2);background:var(--surface2);
+  font-family:'DM Sans',sans-serif;transition:all .2s;
+}
+.body-part:hover{border-color:rgba(232,149,58,0.4);color:var(--amber-l)}
+.body-part.sel{background:rgba(232,149,58,0.12);border-color:rgba(232,149,58,0.4);color:var(--amber-l)}
+
+/* Risk card */
+.risk-card{
+  border-radius:var(--r2);padding:24px;margin-bottom:16px;
+  border:1px solid;position:relative;overflow:hidden;
+}
+.risk-card::before{
+  content:'';position:absolute;inset:0;opacity:.06;
+  background:radial-gradient(ellipse at top right,currentColor,transparent 60%);
+}
+.risk-low{background:rgba(45,184,154,0.08);border-color:rgba(45,184,154,0.25);color:var(--mint)}
+.risk-medium{background:rgba(232,149,58,0.08);border-color:rgba(232,149,58,0.25);color:var(--amber)}
+.risk-high{background:rgba(217,95,122,0.08);border-color:rgba(217,95,122,0.3);color:var(--rose)}
+.risk-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 14px;
+  border-radius:50px;font-size:12px;font-weight:500;border:1px solid currentColor;
+  background:rgba(255,255,255,0.05);margin-bottom:14px;
+}
+.risk-title{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:8px;color:var(--text)}
+.risk-desc{font-size:14px;color:var(--text2);line-height:1.6}
+
+/* Remedies */
+.remedy-list{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.remedy-item{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;
+}
+.remedy-icon{font-size:22px;flex-shrink:0}
+.remedy-text h5{font-size:13px;font-weight:500;margin-bottom:3px}
+.remedy-text p{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* Nearby doctors */
+.doc-list{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.doc-card{
+  display:flex;align-items:center;gap:14px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;cursor:pointer;transition:all .2s;
+}
+.doc-card:hover{border-color:rgba(232,149,58,0.3);transform:translateX(3px)}
+.doc-av{
+  width:42px;height:42px;border-radius:50%;
+  background:rgba(232,149,58,0.15);color:var(--amber-l);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.doc-info h5{font-size:14px;font-weight:500;margin-bottom:3px}
+.doc-info p{font-size:12px;color:var(--text2)}
+.doc-dist{margin-left:auto;font-size:12px;color:var(--mint-l);text-align:right;white-space:nowrap}
+
+/* Symptom report */
+.report-preview{
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--r2);padding:20px;
+}
+.report-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;
+}
+.report-row:last-child{border-bottom:none}
+.report-label{color:var(--text2)}
+.report-val{color:var(--text);font-weight:500}
+.report-btns{display:flex;gap:10px;margin-top:16px}
+.rep-btn{
+  flex:1;padding:11px;border-radius:var(--r);font-size:13px;font-weight:500;
+  cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid;transition:all .2s;
+  text-align:center;
+}
+.rep-download{background:var(--aura);color:#fff;border-color:var(--aura)}
+.rep-download:hover{background:var(--aura-l)}
+.rep-share{background:transparent;color:var(--text2);border-color:var(--border2)}
+.rep-share:hover{color:var(--text);border-color:var(--border2)}
+
+/* ── SCREEN 4: BOTH MODULES ── */
+.both-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:960px;margin:0 auto;padding:24px 20px 60px}
+@media(max-width:680px){.both-layout{grid-template-columns:1fr}}
+.both-col{display:flex;flex-direction:column;gap:12px}
+.both-col-header{
+  padding:16px 18px;border-radius:var(--r2);display:flex;align-items:center;gap:12px;
+}
+.bch-mental{background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.25)}
+.bch-physical{background:rgba(232,149,58,0.1);border:1px solid rgba(232,149,58,0.25)}
+.bch-icon{font-size:28px}
+.bch-title{font-family:'DM Serif Display',serif;font-size:18px}
+.bch-sub{font-size:12px;margin-top:2px}
+.bch-mental .bch-sub{color:var(--aura-l)}
+.bch-physical .bch-sub{color:var(--amber-l)}
+
+.mini-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;cursor:pointer;transition:all .2s;
+}
+.mini-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.mini-card-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.mini-icon{font-size:22px}
+.mini-title{font-size:14px;font-weight:500}
+.mini-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.mini-action{
+  display:inline-block;margin-top:10px;font-size:12px;
+  color:var(--aura-l);font-weight:500;
+}
+.mini-card-physical .mini-action{color:var(--amber-l)}
+.priority-badge{
+  font-size:10px;padding:2px 8px;border-radius:50px;margin-left:auto;
+  background:rgba(45,184,154,0.15);color:var(--mint-l);border:1px solid rgba(45,184,154,0.2);
+}
+.mini-risk-row{display:flex;gap:6px;margin-top:8px}
+.mini-risk{
+  flex:1;padding:6px;border-radius:8px;text-align:center;font-size:11px;font-weight:500;
+  border:1px solid;
+}
+.mr-low{background:rgba(45,184,154,0.1);border-color:rgba(45,184,154,0.2);color:var(--mint-l)}
+.mr-med{background:rgba(232,149,58,0.1);border-color:rgba(232,149,58,0.2);color:var(--amber-l)}
+.mr-hi{background:rgba(217,95,122,0.1);border-color:rgba(217,95,122,0.2);color:var(--rose-l)}
+.mr-sel{border-width:2px}
+
+/* Session summary */
+.summary-bar{
+  background:var(--surface2);border:1px solid rgba(45,184,154,0.2);
+  border-radius:var(--r2);padding:18px 22px;
+  margin:16px 20px;display:flex;align-items:center;gap:16px;
+  max-width:960px;margin-left:auto;margin-right:auto;
+}
+.sum-icon{font-size:28px;flex-shrink:0}
+.sum-text h4{font-size:14px;font-weight:500;margin-bottom:4px;color:var(--mint-l)}
+.sum-text p{font-size:13px;color:var(--text2)}
+.sum-btn{
+  margin-left:auto;flex-shrink:0;padding:9px 20px;border-radius:50px;
+  background:var(--mint);color:var(--bg);border:none;font-size:13px;font-weight:500;
+  cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;
+}
+
+/* Orbs */
+.orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.14}
+.o1{width:500px;height:500px;background:var(--aura);top:-150px;left:-100px;animation:df1 14s ease-in-out infinite}
+.o2{width:350px;height:350px;background:var(--mint);bottom:-80px;right:-60px;animation:df2 18s ease-in-out infinite}
+.o3{width:250px;height:250px;background:var(--amber);top:40%;left:55%;animation:df3 11s ease-in-out infinite}
+@keyframes df1{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,30px)}}
+@keyframes df2{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,-25px)}}
+@keyframes df3{0%,100%{transform:translate(0,0)}50%{transform:translate(25px,-40px)}}
+
+/* Scroll */
+.scrollable{position:relative;z-index:1}
+
+/* Breath counter script helpers */
+#breath-text{font-size:13px;color:var(--text2);text-align:center;min-height:20px}
+#breath-num{transition:all .5s}
+
+/* Collapsible section toggle icon */
+.toggle-icon{transition:transform .3s;color:var(--text3);font-size:18px}
+.toggle-icon.open{transform:rotate(180deg)}
+</style>
+</head>
+<body>
+
+<div class="orbs">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+</div>
+
+<!-- TOP NAV -->
+<div class="topbar">
+  <div class="logo-row">
+    <div class="logo-ring"></div>
+    <span class="logo-name">AURA</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="show('chat')">💬 Chat Triage</button>
+    <button class="nav-tab" onclick="show('mental')">🧠 Mental Module</button>
+    <button class="nav-tab" onclick="show('physical')">🫀 Physical Module</button>
+    <button class="nav-tab" onclick="show('both')">⚡ Both Active</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1 — FOLLOW-UP CHAT / TRIAGE
+═══════════════════════════════════════════ -->
+<div class="screen active scrollable" id="s-chat">
+  <div class="chat-wrap">
+    <div class="chat-header">
+      <p>Hi Aryan, I'm listening 👋</p>
+      <span>Tell me what's on your mind — I'll ask a few questions before we begin</span>
+    </div>
+    <div class="aura-status"><span class="status-dot"></span>AURA is processing your input</div>
+
+    <div class="messages" id="msgs">
+
+      <!-- User opens -->
+      <div class="msg user show">
+        <div class="av av-user">A</div>
+        <div class="bubble bubble-user">"I've been super stressed since morning and I also have this dull headache that won't go away."</div>
+      </div>
+
+      <!-- AURA Q1 -->
+      <div class="msg show">
+        <div class="av av-aura">✦</div>
+        <div class="bubble bubble-aura">
+          I hear you — stress with a headache can feel really draining. Let me ask a couple of things so I can help you better.
+          <br><br>
+          <strong style="color:var(--aura-l)">How long have you been feeling stressed today?</strong>
+          <div class="quick-replies">
+            <div class="qr" onclick="pickReply(this,'Since I woke up')">Since I woke up</div>
+            <div class="qr" onclick="pickReply(this,'Last few hours')">Last few hours</div>
+            <div class="qr" onclick="pickReply(this,'Since yesterday')">Since yesterday</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User reply -->
+      <div class="msg user" id="reply1">
+        <div class="av av-user">A</div>
+        <div class="bubble bubble-user" id="reply1-text"></div>
+      </div>
+
+      <!-- AURA Q2 -->
+      <div class="msg" id="q2">
+        <div class="av av-aura">✦</div>
+        <div class="bubble bubble-aura">
+          Got it. And that headache — where exactly do you feel it, and how would you rate it from 1–10?
+          <div class="quick-replies">
+            <div class="qr" onclick="pickQ2(this,'Temples, about a 5')">Temples, ~5/10</div>
+            <div class="qr" onclick="pickQ2(this,'Back of head, 3–4')">Back of head, 3–4/10</div>
+            <div class="qr" onclick="pickQ2(this,'Forehead, 6–7')">Forehead, 6–7/10</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Q2 reply -->
+      <div class="msg user" id="reply2" style="display:none">
+        <div class="av av-user">A</div>
+        <div class="bubble bubble-user" id="reply2-text"></div>
+      </div>
+
+      <!-- AURA Q3 -->
+      <div class="msg" id="q3" style="display:none">
+        <div class="av av-aura">✦</div>
+        <div class="bubble bubble-aura">
+          Last one — is this stress linked to something specific, or more of a general heavy feeling?
+          <div class="quick-replies">
+            <div class="qr" onclick="pickQ3(this,'Work pressure')">Work pressure</div>
+            <div class="qr" onclick="pickQ3(this,'Personal issues')">Personal issues</div>
+            <div class="qr" onclick="pickQ3(this,'Just general anxiety')">General anxiety</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Q3 reply -->
+      <div class="msg user" id="reply3" style="display:none">
+        <div class="av av-user">A</div>
+        <div class="bubble bubble-user" id="reply3-text"></div>
+      </div>
+
+      <!-- AURA Detection Result -->
+      <div class="msg" id="detection" style="display:none">
+        <div class="av av-aura">✦</div>
+        <div class="bubble bubble-aura">
+          Thanks Aryan. Based on what you've shared, I've detected:
+          <div class="detect-row" style="margin-top:10px">
+            <span class="dtag dtag-mental">🧠 Stress / anxiety — moderate</span>
+            <span class="dtag dtag-physical">🫀 Tension headache — low–medium risk</span>
+          </div>
+          <div class="activate-card" style="margin-top:14px">
+            <h4>How would you like to proceed?</h4>
+            <div class="module-btns">
+              <button class="mod-btn mod-btn-mental" onclick="show('mental')">🧠 Mental relief first</button>
+              <button class="mod-btn mod-btn-physical" onclick="show('physical')">🫀 Physical check first</button>
+              <button class="mod-btn mod-btn-both" onclick="show('both')">⚡ Handle both together (recommended)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="input-bar">
+    <div class="input-inner">
+      <input class="chat-in" placeholder="Or type your reply here..." id="typein"/>
+      <button class="send-b" onclick="sendTyped()">
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2 — MENTAL HEALTH MODULE
+═══════════════════════════════════════════ -->
+<div class="screen scrollable" id="s-mental">
+  <div class="module-wrap">
+    <div class="module-hero">
+      <div class="module-icon-big">🧠</div>
+      <h2>Mental Relief Journey</h2>
+      <p>We'll guide you through three steps — start small, go deeper only if needed</p>
+    </div>
+
+    <!-- Progress -->
+    <div class="step-track">
+      <div class="step-item">
+        <div class="step-circle current" id="sc1">1</div>
+        <div class="step-label">Breathing</div>
+      </div>
+      <div class="step-line" id="sl1"></div>
+      <div class="step-item">
+        <div class="step-circle pending" id="sc2">2</div>
+        <div class="step-label">Yoga &amp; Stretch</div>
+      </div>
+      <div class="step-line" id="sl2"></div>
+      <div class="step-item">
+        <div class="step-circle pending" id="sc3">3</div>
+        <div class="step-label">Mood Boost</div>
+      </div>
+    </div>
+
+    <!-- STEP 1: BREATHING -->
+    <div class="section-card">
+      <div class="section-card-header" onclick="toggle('breath-body','breath-icon')">
+        <div class="sec-title">
+          🌬️ Step 1 — Guided Breathing
+          <span class="sec-badge sec-badge-active">Active now</span>
+        </div>
+        <span class="toggle-icon open" id="breath-icon">⌄</span>
+      </div>
+      <div class="sec-body open" id="breath-body">
+        <div class="breath-center">
+          <div class="breath-ring-wrap">
+            <div class="breath-ring">
+              <div class="breath-inner">
+                <div class="breath-phase" id="breath-phase">Inhale</div>
+                <div class="breath-count" id="breath-num">4</div>
+              </div>
+            </div>
+          </div>
+          <p id="breath-text">Breathe in slowly through your nose…</p>
+          <div class="breath-timer">⏱ 4:00 remaining</div>
+          <div class="breath-controls">
+            <button class="ctrl-btn ctrl-start" id="breath-btn" onclick="toggleBreath()">▶ Start</button>
+            <button class="ctrl-btn ctrl-skip" onclick="showCheckin()">Skip →</button>
+          </div>
+        </div>
+
+        <div class="checkin-box" id="checkin" style="display:none">
+          <p>How are you feeling after that?</p>
+          <div class="checkin-opts">
+            <div class="checkin-opt" onclick="checkinPick(this,'better')">😌 Better</div>
+            <div class="checkin-opt" onclick="checkinPick(this,'same')">😐 Same</div>
+            <div class="checkin-opt" onclick="checkinPick(this,'worse')">😔 Worse</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: YOGA -->
+    <div class="section-card">
+      <div class="section-card-header" onclick="toggle('yoga-body','yoga-icon')">
+        <div class="sec-title">
+          🧘 Step 2 — Yoga &amp; Stretching
+          <span class="sec-badge sec-badge-lock" id="yoga-badge">Unlocks after Step 1</span>
+        </div>
+        <span class="toggle-icon" id="yoga-icon">⌄</span>
+      </div>
+      <div class="sec-body" id="yoga-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Routines matched to your stress &amp; headache:</p>
+        <div class="yoga-grid">
+          <div class="yoga-card">
+            <div class="yoga-thumb yoga-thumb-bg-1">
+              🧘
+              <div class="play-overlay"><div class="play-circle"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <div class="yoga-info">
+              <h5>Neck &amp; Shoulder Release</h5>
+              <p>Relieves tension headaches</p>
+              <div class="dur">⏱ 8 min</div>
+            </div>
+          </div>
+          <div class="yoga-card">
+            <div class="yoga-thumb yoga-thumb-bg-2">
+              🌿
+              <div class="play-overlay"><div class="play-circle"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <div class="yoga-info">
+              <h5>Stress Relief Flow</h5>
+              <p>Gentle full-body sequence</p>
+              <div class="dur">⏱ 12 min</div>
+            </div>
+          </div>
+          <div class="yoga-card">
+            <div class="yoga-thumb yoga-thumb-bg-3">
+              🌊
+              <div class="play-overlay"><div class="play-circle"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <div class="yoga-info">
+              <h5>Anxiety Calming Yoga</h5>
+              <p>Breathing + gentle poses</p>
+              <div class="dur">⏱ 10 min</div>
+            </div>
+          </div>
+          <div class="yoga-card">
+            <div class="yoga-thumb yoga-thumb-bg-4">
+              💆
+              <div class="play-overlay"><div class="play-circle"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <div class="yoga-info">
+              <h5>Progressive Muscle Relax</h5>
+              <p>Tension release for whole body</p>
+              <div class="dur">⏱ 15 min</div>
+            </div>
+          </div>
+        </div>
+        <div class="checkin-box" style="margin-top:16px">
+          <p>How do you feel after your session?</p>
+          <div class="checkin-opts">
+            <div class="checkin-opt" onclick="checkinPick(this,'better')">😌 Better</div>
+            <div class="checkin-opt" onclick="checkinPick(this,'same')">😐 Same</div>
+            <div class="checkin-opt" onclick="checkinPick(this,'worse')">😔 Worse</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: MOOD -->
+    <div class="section-card">
+      <div class="section-card-header" onclick="toggle('mood-body','mood-icon')">
+        <div class="sec-title">
+          😄 Step 3 — Mood Lift
+          <span class="sec-badge sec-badge-lock" id="mood-badge">Unlocks after Step 2</span>
+        </div>
+        <span class="toggle-icon" id="mood-icon">⌄</span>
+      </div>
+      <div class="sec-body" id="mood-body">
+        <div class="mood-tabs">
+          <button class="mood-tab active" onclick="moodTab(this,'memes')">😂 Memes</button>
+          <button class="mood-tab" onclick="moodTab(this,'music')">🎵 Music</button>
+          <button class="mood-tab" onclick="moodTab(this,'videos')">▶ Videos</button>
+          <button class="mood-tab" onclick="moodTab(this,'quotes')">💬 Quotes</button>
+        </div>
+        <div class="mood-grid" id="mood-content">
+          <div class="mood-card">
+            <div class="mc-icon">😂</div>
+            <h5>Monday Mood</h5>
+            <p>Relatable work humor to lighten the load</p>
+          </div>
+          <div class="mood-card">
+            <div class="mc-icon">🐶</div>
+            <h5>Wholesome Animals</h5>
+            <p>Cute overload guaranteed</p>
+          </div>
+          <div class="mood-card">
+            <div class="mc-icon">🎭</div>
+            <h5>Situational Stress</h5>
+            <p>Because laughter really helps</p>
+          </div>
+          <div class="mood-card">
+            <div class="mc-icon">☕</div>
+            <h5>Cozy Vibes</h5>
+            <p>Calm and comforting content</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3 — PHYSICAL MODULE
+═══════════════════════════════════════════ -->
+<div class="screen scrollable" id="s-physical">
+  <div class="module-wrap">
+    <div class="module-hero" style="background:radial-gradient(ellipse at 50% 0%,rgba(232,149,58,0.1) 0%,transparent 70%)">
+      <div class="module-icon-big">🫀</div>
+      <h2>Physical Symptom Check</h2>
+      <p>Tell me where you feel it — I'll assess the risk and guide you through next steps</p>
+    </div>
+
+    <!-- Body area selector -->
+    <div class="section-card">
+      <div class="section-card-header" onclick="toggle('body-sel','body-sel-icon')">
+        <div class="sec-title">📍 Step 1 — Where do you feel it?<span class="sec-badge sec-badge-active">Select areas</span></div>
+        <span class="toggle-icon open" id="body-sel-icon">⌄</span>
+      </div>
+      <div class="sec-body open" id="body-sel">
+        <div class="body-select-wrap">
+          <div class="body-diagram">
+            <div class="body-row">
+              <div class="body-part sel" onclick="togglePart(this)">🧠 Head</div>
+              <div class="body-part" onclick="togglePart(this)">👁 Eyes</div>
+            </div>
+            <div class="body-row">
+              <div class="body-part" onclick="togglePart(this)">🦷 Jaw/Neck</div>
+              <div class="body-part sel" onclick="togglePart(this)">🫁 Chest</div>
+            </div>
+            <div class="body-row">
+              <div class="body-part" onclick="togglePart(this)">🤢 Stomach</div>
+              <div class="body-part" onclick="togglePart(this)">💪 Arms</div>
+            </div>
+            <div class="body-row">
+              <div class="body-part" onclick="togglePart(this)">🦵 Legs</div>
+              <div class="body-part" onclick="togglePart(this)">🦶 Feet</div>
+            </div>
+          </div>
+          <div class="checkin-box">
+            <p>How severe is the discomfort overall?</p>
+            <div class="checkin-opts">
+              <div class="checkin-opt sel">😊 Mild (1–3)</div>
+              <div class="checkin-opt" onclick="checkinPick(this,'mod')">😟 Moderate (4–6)</div>
+              <div class="checkin-opt" onclick="checkinPick(this,'sev')">😰 Severe (7–10)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Card -->
+    <div class="section-card">
+      <div class="section-card-header" onclick="toggle('risk-body','risk-icon')">
+        <div class="sec-title">📊 Step 2 — Risk Assessment<span class="sec-badge sec-badge-active">Result ready</span></div>
+        <span class="toggle-icon open" id="risk-icon">⌄</span>
+      </div>
+      <div class="sec-body open" id="risk-body">
+        <div class="risk-card risk-medium">
+          <div class="risk-pill">🟡 Medium Risk</div>
+          <div class="risk-title">Stress-induced tension headache</div>
+          <div class="risk-desc">Your symptoms — dull head pain paired with stress — are consistent with a tension headache, which is common and manageable at home. However, given it's been since morning, monitor for worsening symptoms. Seek medical attention if pain intensifies or you develop nausea or vision changes.</div>
+        </div>
+        <!-- Follow-up questions -->
+        <div class="checkin-box">
+          <p>Any other symptoms alongside?</p>
+          <div class="checkin-opts" style="flex-wrap:wrap">
+            <div class="checkin-opt" onclick="this.classList.toggle('sel')">🤢 Nausea</div>
+            <div class="checkin-opt" onclick="this.classList.toggle('sel')">👁 Blurred vision</div>
+            <div class="checkin-opt" onclick="this.classList.toggle('sel')">🌡 Fever</div>
+            <div class="checkin-opt" onclick="this.classList.toggle('sel')">😴 Fatigue</div>
+            <div class="checkin-opt" onclick="this.classList.toggle('sel')">None of these</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Home Remedies -->
+    <div class="section-card">
+      <div class="section-card-header" onclick="toggle('rem-body','rem-icon')">
+        <div class="sec-title">🏠 Step 3 — Home Remedies<span class="sec-badge sec-badge-active">4 suggestions</span></div>
+        <span class="toggle-icon open" id="rem-icon">⌄</span>
+      </div>
+      <div class="sec-body open" id="rem-body">
+        <div class="remedy-list">
+          <div class="remedy-item">
+            <div class="remedy-icon">💧</div>
+            <div class="remedy-text">
+              <h5>Hydrate immediately</h5>
+              <p>Dehydration amplifies tension headaches. Drink 2–3 glasses of water over the next hour.</p>
+            </div>
+          </div>
+          <div class="remedy-item">
+            <div class="remedy-icon">🧊</div>
+            <div class="remedy-text">
+              <h5>Cold compress on forehead</h5>
+              <p>Apply a cold pack or damp cloth for 10–15 minutes. Helps constrict blood vessels and reduce pain.</p>
+            </div>
+          </div>
+          <div class="remedy-item">
+            <div class="remedy-icon">💆</div>
+            <div class="remedy-text">
+              <h5>Temple &amp; neck massage</h5>
+              <p>Gently apply circular pressure to your temples, base of skull, and the back of your neck for 5 minutes.</p>
+            </div>
+          </div>
+          <div class="remedy-item">
+            <div class="remedy-icon">🌑</div>
+            <div class="remedy-text">
+              <h5>Rest in a dark, quiet room</h5>
+              <p>Reduce screen brightness. Avoid loud noise. Even 20 minutes of rest can significantly reduce intensity.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nearby Doctors -->
+    <div class="section-card">
+      <div class="section-card-header" onclick="toggle('doc-body','doc-icon')">
+        <div class="sec-title">📍 Nearby Help<span class="sec-badge sec-badge-active">3 found nearby</span></div>
+        <span class="toggle-icon open" id="doc-icon">⌄</span>
+      </div>
+      <div class="sec-body open" id="doc-body">
+        <div class="doc-list">
+          <div class="doc-card">
+            <div class="doc-av">🏥</div>
+            <div class="doc-info">
+              <h5>City Care General Hospital</h5>
+              <p>General Medicine · Open now · 24/7 emergency</p>
+            </div>
+            <div class="doc-dist">1.2 km →</div>
+          </div>
+          <div class="doc-card">
+            <div class="doc-av">👨‍⚕️</div>
+            <div class="doc-info">
+              <h5>Dr. Priya Sharma</h5>
+              <p>Neurologist · Available today 5–8 PM</p>
+            </div>
+            <div class="doc-dist">2.4 km →</div>
+          </div>
+          <div class="doc-card">
+            <div class="doc-av">💊</div>
+            <div class="doc-info">
+              <h5>MedPlus Pharmacy</h5>
+              <p>OTC pain relief available · Open till 10 PM</p>
+            </div>
+            <div class="doc-dist">0.6 km →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Symptom Report -->
+    <div class="section-card">
+      <div class="section-card-header" onclick="toggle('rep-body','rep-icon')">
+        <div class="sec-title">📋 Symptom Report<span class="sec-badge sec-badge-done">Ready to download</span></div>
+        <span class="toggle-icon open" id="rep-icon">⌄</span>
+      </div>
+      <div class="sec-body open" id="rep-body">
+        <div class="report-preview">
+          <div class="report-row"><span class="report-label">Patient</span><span class="report-val">Aryan · 22 yrs</span></div>
+          <div class="report-row"><span class="report-label">Session date</span><span class="report-val">Today, 2:34 PM</span></div>
+          <div class="report-row"><span class="report-label">Reported symptoms</span><span class="report-val">Stress, dull headache (temples)</span></div>
+          <div class="report-row"><span class="report-label">Duration</span><span class="report-val">Since morning (~6 hrs)</span></div>
+          <div class="report-row"><span class="report-label">Risk level</span><span class="report-val" style="color:var(--amber-l)">🟡 Medium</span></div>
+          <div class="report-row"><span class="report-label">AURA assessment</span><span class="report-val">Tension headache, stress-induced</span></div>
+          <div class="report-row"><span class="report-label">Recommendation</span><span class="report-val">Home care + monitor; see GP if worsens</span></div>
+        </div>
+        <div class="report-btns">
+          <button class="rep-btn rep-download">⬇ Download PDF</button>
+          <button class="rep-btn rep-share">📤 Share with doctor</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4 — BOTH MODULES ACTIVE
+═══════════════════════════════════════════ -->
+<div class="screen scrollable" id="s-both">
+
+  <!-- Session summary bar -->
+  <div class="summary-bar">
+    <div class="sum-icon">⚡</div>
+    <div class="sum-text">
+      <h4>Both modules activated</h4>
+      <p>Breathing exercise running now — physical assessment ready when you're done</p>
+    </div>
+    <button class="sum-btn">View full session →</button>
+  </div>
+
+  <div class="both-layout">
+
+    <!-- Mental Column -->
+    <div class="both-col">
+      <div class="both-col-header bch-mental">
+        <div class="bch-icon">🧠</div>
+        <div>
+          <div class="bch-title">Mental Relief</div>
+          <div class="bch-sub">Active · Step 1 of 3</div>
+        </div>
+      </div>
+
+      <div class="mini-card">
+        <div class="mini-card-top">
+          <div class="mini-icon">🌬️</div>
+          <div class="mini-title">Guided Breathing</div>
+          <span class="priority-badge">Start here</span>
+        </div>
+        <div class="mini-desc">4-7-8 breathing technique. Immediate calming effect on your nervous system and headache.</div>
+        <!-- Inline mini breathing ring -->
+        <div style="display:flex;align-items:center;gap:14px;margin-top:14px;padding:14px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border)">
+          <div style="width:56px;height:56px;border-radius:50%;border:2px solid var(--aura-l);display:flex;align-items:center;justify-content:center;animation:breathe 4s ease-in-out infinite;flex-shrink:0">
+            <span style="font-size:10px;color:var(--aura-l);font-weight:500">Inhale</span>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:500;margin-bottom:4px">In progress…</div>
+            <div style="font-size:12px;color:var(--text2)">3:24 remaining · Cycle 2 of 8</div>
+          </div>
+        </div>
+        <span class="mini-action" onclick="show('mental')">Open full session →</span>
+      </div>
+
+      <div class="mini-card" style="opacity:.6">
+        <div class="mini-card-top">
+          <div class="mini-icon">🧘</div>
+          <div class="mini-title">Yoga &amp; Stretch</div>
+          <span class="sec-badge sec-badge-lock" style="margin-left:auto;font-size:10px">Locked</span>
+        </div>
+        <div class="mini-desc">Unlocks after breathing check-in. Neck &amp; shoulder routines ready.</div>
+      </div>
+
+      <div class="mini-card" style="opacity:.6">
+        <div class="mini-card-top">
+          <div class="mini-icon">😄</div>
+          <div class="mini-title">Mood Boost</div>
+          <span class="sec-badge sec-badge-lock" style="margin-left:auto;font-size:10px">Locked</span>
+        </div>
+        <div class="mini-desc">Memes, music &amp; uplifting content waiting for you.</div>
+      </div>
+    </div>
+
+    <!-- Physical Column -->
+    <div class="both-col">
+      <div class="both-col-header bch-physical">
+        <div class="bch-icon">🫀</div>
+        <div>
+          <div class="bch-title">Physical Triage</div>
+          <div class="bch-sub">Running in background</div>
+        </div>
+      </div>
+
+      <div class="mini-card mini-card-physical">
+        <div class="mini-card-top">
+          <div class="mini-icon">📊</div>
+          <div class="mini-title">Risk Assessment</div>
+        </div>
+        <div class="mini-risk-row">
+          <div class="mini-risk mr-low">🟢 Low</div>
+          <div class="mini-risk mr-med mr-sel">🟡 Medium</div>
+          <div class="mini-risk mr-hi">🔴 High</div>
+        </div>
+        <div class="mini-desc" style="margin-top:10px">Tension headache detected. Stress-related. Currently manageable at home.</div>
+        <span class="mini-action" style="color:var(--amber-l)" onclick="show('physical')">View full report →</span>
+      </div>
+
+      <div class="mini-card mini-card-physical">
+        <div class="mini-card-top">
+          <div class="mini-icon">🏠</div>
+          <div class="mini-title">Home Remedies</div>
+        </div>
+        <div class="mini-desc">Hydrate · Cold compress · Temple massage · Rest in a dark room. 4 steps ready.</div>
+        <span class="mini-action" style="color:var(--amber-l)" onclick="show('physical')">See all remedies →</span>
+      </div>
+
+      <div class="mini-card mini-card-physical">
+        <div class="mini-card-top">
+          <div class="mini-icon">📋</div>
+          <div class="mini-title">Symptom Report</div>
+        </div>
+        <div class="mini-desc">Full report generated. Share with your doctor or download as PDF.</div>
+        <span class="mini-action" style="color:var(--amber-l)">⬇ Download PDF</span>
+      </div>
+
+      <div class="mini-card mini-card-physical">
+        <div class="mini-card-top">
+          <div class="mini-icon">📍</div>
+          <div class="mini-title">Nearby Help</div>
+        </div>
+        <div class="mini-desc">3 nearby options found — clinic, neurologist, pharmacy.</div>
+        <span class="mini-action" style="color:var(--amber-l)" onclick="show('physical')">View map →</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Screen switching
+function show(s){
+  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  const map={chat:'s-chat',mental:'s-mental',physical:'s-physical',both:'s-both'};
+  const tabMap={chat:0,mental:1,physical:2,both:3};
+  document.getElementById(map[s]).classList.add('active');
+  document.querySelectorAll('.nav-tab')[tabMap[s]].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// Collapsible sections
+function toggle(bodyId,iconId){
+  const body=document.getElementById(bodyId);
+  const icon=document.getElementById(iconId);
+  body.classList.toggle('open');
+  icon.classList.toggle('open');
+}
+
+// Body part selection
+function togglePart(el){el.classList.toggle('sel')}
+
+// Checkin option
+function checkinPick(el,val){
+  el.closest('.checkin-opts').querySelectorAll('.checkin-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  if(val==='same'||val==='worse'){
+    // unlock next step
+    unlockStep();
+  }
+}
+
+function unlockStep(){
+  const badge=document.getElementById('yoga-badge');
+  if(badge){badge.textContent='Ready';badge.className='sec-badge sec-badge-active';}
+  const sc2=document.getElementById('sc2');
+  if(sc2){sc2.className='step-circle current';}
+  const sl1=document.getElementById('sl1');
+  if(sl1){sl1.className='step-line done';}
+}
+
+// Mood tabs
+function moodTab(el,type){
+  document.querySelectorAll('.mood-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const content={
+    memes:[['😂','Monday Mood','Relatable work humor'],['🐶','Wholesome Animals','Cute overload'],['🎭','Situational Stress','Because laughter helps'],['☕','Cozy Vibes','Calm content']],
+    music:[['🎵','Lo-fi Chill','Focus beats for calm'],['🎶','Nature Sounds','Rain, forest, ocean'],['🥁','Upbeat Pop','Energy booster'],['🎹','Piano Relax','Soothing instrumentals']],
+    videos:[['▶','Puppy Compilation','Instant mood lift'],['🌅','Sunrise Timelapse','Peaceful nature'],['😂','Stand-up Snippets','5-min laughs'],['🌊','Ocean Waves','Calming sounds']],
+    quotes:[['💬','"You are doing great"','Affirmation of the day'],['✨','"This too shall pass"','Remind yourself'],['🌱','"Progress not perfection"','Growth mindset'],['🔥','"Rest is productive"','Self-care reminder']]
+  };
+  const grid=document.getElementById('mood-content');
+  grid.innerHTML=content[type].map(([icon,title,desc])=>
+    `<div class="mood-card"><div class="mc-icon">${icon}</div><h5>${title}</h5><p>${desc}</p></div>`
+  ).join('');
+}
+
+// Chat follow-up flow
+let step=0;
+function pickReply(el,text){
+  document.getElementById('reply1-text').textContent=text;
+  const r=document.getElementById('reply1');
+  r.style.display='flex';
+  setTimeout(()=>{r.classList.add('show')},50);
+  el.closest('.quick-replies').querySelectorAll('.qr').forEach(q=>q.style.pointerEvents='none');
+  setTimeout(()=>{
+    const q2=document.getElementById('q2');
+    q2.style.display='flex';
+    setTimeout(()=>q2.classList.add('show'),50);
+  },600);
+}
+function pickQ2(el,text){
+  document.getElementById('reply2-text').textContent=text;
+  const r=document.getElementById('reply2');
+  r.style.display='flex';
+  setTimeout(()=>r.classList.add('show'),50);
+  el.closest('.quick-replies').querySelectorAll('.qr').forEach(q=>q.style.pointerEvents='none');
+  setTimeout(()=>{
+    const q3=document.getElementById('q3');
+    q3.style.display='flex';
+    setTimeout(()=>q3.classList.add('show'),50);
+  },600);
+}
+function pickQ3(el,text){
+  document.getElementById('reply3-text').textContent=text;
+  const r=document.getElementById('reply3');
+  r.style.display='flex';
+  setTimeout(()=>r.classList.add('show'),50);
+  el.closest('.quick-replies').querySelectorAll('.qr').forEach(q=>q.style.pointerEvents='none');
+  setTimeout(()=>{
+    const det=document.getElementById('detection');
+    det.style.display='flex';
+    setTimeout(()=>det.classList.add('show'),50);
+  },800);
+}
+function sendTyped(){
+  const v=document.getElementById('typein').value.trim();
+  if(!v)return;
+  document.getElementById('typein').value='';
+}
+
+// Breathing exercise
+let breathRunning=false,breathInterval=null,timeLeft=240,phase='inhale',phaseTime=4;
+const phases=[{name:'Inhale',dur:4,text:'Breathe in slowly through your nose…'},
+              {name:'Hold',dur:7,text:'Hold your breath gently…'},
+              {name:'Exhale',dur:8,text:'Slowly breathe out through your mouth…'}];
+let pi=0,pc=phases[0].dur;
+
+function toggleBreath(){
+  const btn=document.getElementById('breath-btn');
+  if(!breathRunning){
+    breathRunning=true;btn.textContent='⏸ Pause';
+    breathInterval=setInterval(()=>{
+      pc--;
+      document.getElementById('breath-num').textContent=pc;
+      if(pc<=0){
+        pi=(pi+1)%3;
+        pc=phases[pi].dur;
+        document.getElementById('breath-phase').textContent=phases[pi].name;
+        document.getElementById('breath-text').textContent=phases[pi].text;
+      }
+      timeLeft--;
+      if(timeLeft<=0){clearInterval(breathInterval);breathRunning=false;btn.textContent='✓ Done';showCheckin();}
+    },1000);
+  } else {
+    breathRunning=false;btn.textContent='▶ Resume';
+    clearInterval(breathInterval);
+  }
+}
+function showCheckin(){document.getElementById('checkin').style.display='block';}
+</script>
+</body>
+</html>
