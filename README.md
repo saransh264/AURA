@@ -1,1 +1,2 @@
-This is our project AURA(AI Unified Relief Assistant)
+This is our project AURA's  (AI Unified Relief Assistant) frontend codes
+
