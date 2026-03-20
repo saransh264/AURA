@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AURA — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#09090F;
+  --s1:#111118;
+  --s2:#16161F;
+  --s3:#1E1E28;
+  --aura:#7C5CBF;
+  --aura-l:#A98DE0;
+  --aura-ll:#c4aeee;
+  --mint:#2DB89A;
+  --mint-l:#4DD4B8;
+  --amber:#E8953A;
+  --amber-l:#F0B86A;
+  --rose:#D95F7A;
+  --rose-l:#F08098;
+  --blue:#4A8FE8;
+  --blue-l:#7AB0F0;
+  --text:#EAE8F5;
+  --t2:#9B98BC;
+  --t3:#5A5870;
+  --border:rgba(255,255,255,0.06);
+  --border2:rgba(178, 74, 74, 0.1);
+  --sidebar:220px;
+}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar);
+  min-height:100vh;
+  background:var(--s1);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  position:fixed;
+  top:0;left:0;bottom:0;
+  z-index:100;
+  padding:24px 0;
+}
+
+.sb-logo{
+  display:flex;align-items:center;gap:10px;
+  padding:0 20px 28px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:20px;
+}
+.logo-ring{
+  width:34px;height:34px;border-radius:50%;
+  background:conic-gradient(var(--aura),var(--mint),var(--amber),var(--aura));
+  animation:spin 6s linear infinite;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.logo-ring::after{content:'';width:24px;height:24px;border-radius:50%;background:var(--s1)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.logo-text{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:3px}
+
+.sb-section{padding:0 12px;margin-bottom:6px}
+.sb-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);padding:0 8px;margin-bottom:8px}
+
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;
+  font-size:13px;color:var(--t2);cursor:pointer;
+  transition:all .2s;border:1px solid transparent;
+  margin-bottom:2px;
+}
+.sb-item:hover{background:var(--s2);color:var(--text)}
+.sb-item.active{
+  background:rgba(124,92,191,0.12);
+  border-color:rgba(124,92,191,0.2);
+  color:var(--aura-l);
+}
+.sb-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sb-badge{
+  margin-left:auto;font-size:10px;padding:2px 7px;border-radius:50px;
+  background:rgba(124,92,191,0.2);color:var(--aura-l);font-weight:500;
+}
+
+.sb-user{
+  margin-top:auto;padding:16px 16px 0;
+  border-top:1px solid var(--border);
+}
+.sb-user-card{
+  display:flex;align-items:center;gap:10px;
+  padding:10px;border-radius:10px;cursor:pointer;
+  transition:background .2s;
+}
+.sb-user-card:hover{background:var(--s2)}
+.user-av{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--aura),var(--mint));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:500;color:#fff;flex-shrink:0;
+}
+.user-name{font-size:13px;font-weight:500}
+.user-plan{font-size:11px;color:var(--mint-l)}
+
+/* ── MAIN ── */
+.main{
+  margin-left:var(--sidebar);
+  flex:1;min-height:100vh;
+  display:flex;flex-direction:column;
+}
+
+/* TOP BAR */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 32px;
+  border-bottom:1px solid var(--border);
+  background:rgba(9,9,15,0.8);
+  backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:50;
+}
+.page-title{font-family:'DM Serif Display',serif;font-size:22px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.tb-btn{
+  padding:8px 18px;border-radius:50px;font-size:13px;font-weight:500;
+  cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid;transition:all .2s;
+}
+.tb-chat{background:var(--aura);color:#fff;border-color:var(--aura)}
+.tb-chat:hover{background:var(--aura-l)}
+.tb-notif{
+  width:36px;height:36px;border-radius:50%;border:1px solid var(--border2);
+  background:var(--s2);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:16px;position:relative;transition:background .2s;
+}
+.tb-notif:hover{background:var(--s3)}
+.notif-dot{
+  position:absolute;top:6px;right:6px;width:7px;height:7px;
+  border-radius:50%;background:var(--rose);border:2px solid var(--bg);
+}
+
+/* ── CONTENT ── */
+.content{padding:28px 32px 60px;flex:1}
+
+/* Ambient orbs */
+.orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(100px)}
+.o1{width:500px;height:500px;background:var(--aura);opacity:.08;top:-150px;left:100px;animation:df1 14s ease-in-out infinite}
+.o2{width:350px;height:350px;background:var(--mint);opacity:.06;bottom:-80px;right:100px;animation:df2 18s ease-in-out infinite}
+.o3{width:250px;height:250px;background:var(--amber);opacity:.06;top:40%;left:55%;animation:df3 11s ease-in-out infinite}
+@keyframes df1{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,25px)}}
+@keyframes df2{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,-20px)}}
+@keyframes df3{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-35px)}}
+
+/* ── GREETING ── */
+.greeting{margin-bottom:28px}
+.greeting-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+.greeting h1{font-family:'DM Serif Display',serif;font-size:28px;line-height:1.2}
+.greeting h1 em{font-style:italic;color:var(--aura-l)}
+.greeting p{font-size:14px;color:var(--t2);margin-top:4px}
+.mood-check{
+  display:flex;align-items:center;gap:8px;
+  background:var(--s2);border:1px solid var(--border2);
+  border-radius:50px;padding:8px 16px;font-size:13px;cursor:pointer;
+  transition:all .2s;
+}
+.mood-check:hover{border-color:rgba(124,92,191,0.4)}
+.mood-pulse{width:7px;height:7px;border-radius:50%;background:var(--mint);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+
+/* ── STAT CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:16px;padding:20px;position:relative;overflow:hidden;
+  transition:transform .2s,border-color .2s;cursor:default;
+}
+.stat-card:hover{transform:translateY(-2px);border-color:var(--border2)}
+.stat-card::before{
+  content:'';position:absolute;inset:0;opacity:.04;
+  background:radial-gradient(ellipse at top right,var(--c,#fff),transparent 60%);
+}
+.stat-card.c-purple{--c:var(--aura)}
+.stat-card.c-mint{--c:var(--mint)}
+.stat-card.c-amber{--c:var(--amber)}
+.stat-card.c-rose{--c:var(--rose)}
+.stat-icon{font-size:22px;margin-bottom:14px}
+.stat-val{font-family:'DM Serif Display',serif;font-size:28px;line-height:1;margin-bottom:4px}
+.stat-label{font-size:12px;color:var(--t2)}
+.stat-delta{
+  position:absolute;top:16px;right:16px;
+  font-size:11px;padding:3px 8px;border-radius:50px;font-weight:500;
+}
+.delta-up{background:rgba(45,184,154,0.15);color:var(--mint-l)}
+.delta-down{background:rgba(217,95,122,0.15);color:var(--rose-l)}
+
+/* ── SECTION TITLES ── */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{font-family:'DM Serif Display',serif;font-size:18px}
+.sec-link{font-size:12px;color:var(--aura-l);cursor:pointer;transition:opacity .2s}
+.sec-link:hover{opacity:.7}
+
+/* ── GRID LAYOUTS ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.grid-3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px}
+
+/* ── CARD BASE ── */
+.card{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:18px;padding:22px;
+  transition:border-color .2s;
+}
+.card:hover{border-color:var(--border2)}
+
+/* ── HEALTH SCORE ── */
+.health-score-card{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:18px;padding:22px;
+  display:flex;flex-direction:column;
+}
+.score-ring-wrap{
+  display:flex;align-items:center;gap:24px;margin-bottom:20px;
+}
+.ring-svg{flex-shrink:0}
+.ring-info h3{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:4px}
+.ring-info p{font-size:13px;color:var(--t2);line-height:1.5}
+.score-breakdown{display:flex;flex-direction:column;gap:10px}
+.breakdown-row{display:flex;align-items:center;gap:10px}
+.br-label{font-size:12px;color:var(--t2);width:80px;flex-shrink:0}
+.br-bar{flex:1;height:5px;border-radius:50px;background:var(--s3);overflow:hidden}
+.br-fill{height:100%;border-radius:50px;transition:width .8s ease}
+.br-val{font-size:12px;color:var(--text);width:30px;text-align:right;flex-shrink:0}
+
+/* ── WEEKLY CHART ── */
+.chart-card{background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:22px}
+.chart-tabs{display:flex;gap:6px;margin-bottom:20px}
+.c-tab{
+  padding:5px 14px;border-radius:50px;font-size:12px;cursor:pointer;
+  border:1px solid var(--border);color:var(--t2);background:transparent;
+  font-family:'DM Sans',sans-serif;transition:all .2s;
+}
+.c-tab.active{background:rgba(124,92,191,0.15);border-color:rgba(124,92,191,0.3);color:var(--aura-l)}
+.chart-wrap{position:relative;height:140px;margin-bottom:8px}
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:100%}
+.chart-bar-col{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.bar-stack{display:flex;flex-direction:column;justify-content:flex-end;flex:1;width:100%;gap:2px}
+.bar{border-radius:4px 4px 0 0;width:100%;transition:height .5s ease;min-height:4px}
+.bar-mental{background:linear-gradient(180deg,var(--aura-l),var(--aura))}
+.bar-physical{background:linear-gradient(180deg,var(--amber-l),var(--amber))}
+.bar-day{font-size:10px;color:var(--t3)}
+.chart-legend{display:flex;gap:16px;margin-top:8px}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t2)}
+.leg-dot{width:8px;height:8px;border-radius:2px}
+
+/* ── SESSION HISTORY ── */
+.history-card{background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:22px}
+.session-list{display:flex;flex-direction:column;gap:10px}
+.session-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px;background:var(--s2);border:1px solid var(--border);
+  border-radius:12px;cursor:pointer;transition:all .2s;
+}
+.session-item:hover{border-color:var(--border2);transform:translateX(3px)}
+.sess-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.si-mental{background:rgba(124,92,191,0.15)}
+.si-physical{background:rgba(232,149,58,0.12)}
+.si-both{background:rgba(45,184,154,0.1)}
+.sess-info{flex:1;min-width:0}
+.sess-title{font-size:13px;font-weight:500;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sess-meta{font-size:11px;color:var(--t2);display:flex;align-items:center;gap:8px}
+.sess-dot{width:3px;height:3px;border-radius:50%;background:var(--t3)}
+.sess-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.risk-pill{
+  font-size:10px;padding:2px 9px;border-radius:50px;font-weight:500;
+}
+.r-low{background:rgba(45,184,154,0.15);color:var(--mint-l)}
+.r-medium{background:rgba(232,149,58,0.15);color:var(--amber-l)}
+.r-high{background:rgba(217,95,122,0.15);color:var(--rose-l)}
+.r-none{background:rgba(255,255,255,0.06);color:var(--t2)}
+.sess-time{font-size:11px;color:var(--t3)}
+
+/* ── INSIGHTS PANEL ── */
+.insights-card{background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:22px}
+.insight-item{
+  padding:14px;background:var(--s2);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:10px;
+  border-left:3px solid;
+}
+.insight-item:last-child{margin-bottom:0}
+.ii-purple{border-left-color:var(--aura)}
+.ii-mint{border-left-color:var(--mint)}
+.ii-amber{border-left-color:var(--amber)}
+.insight-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;font-weight:500}
+.ii-purple .insight-label{color:var(--aura-l)}
+.ii-mint .insight-label{color:var(--mint-l)}
+.ii-amber .insight-label{color:var(--amber-l)}
+.insight-text{font-size:13px;color:var(--text);line-height:1.5}
+
+/* ── SYMPTOMS HEATMAP ── */
+.heatmap-card{background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:24px}
+.heatmap-grid{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.hm-row{display:flex;align-items:center;gap:6px}
+.hm-label{font-size:11px;color:var(--t2);width:80px;flex-shrink:0;text-align:right}
+.hm-cells{display:flex;gap:4px;flex:1}
+.hm-cell{
+  width:24px;height:24px;border-radius:4px;cursor:pointer;
+  transition:transform .15s;position:relative;
+}
+.hm-cell:hover{transform:scale(1.2);z-index:5}
+.hm-0{background:var(--s3)}
+.hm-1{background:rgba(124,92,191,0.2)}
+.hm-2{background:rgba(124,92,191,0.4)}
+.hm-3{background:rgba(124,92,191,0.65)}
+.hm-4{background:rgba(124,92,191,0.9)}
+.hm-months{display:flex;gap:4px;padding-left:86px;margin-bottom:2px}
+.hm-month{font-size:10px;color:var(--t3);flex:1;text-align:center}
+
+/* ── RECOMMENDATIONS ── */
+.rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.rec-card{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:16px;padding:18px;cursor:pointer;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.rec-card:hover{transform:translateY(-3px);border-color:var(--border2)}
+.rec-card::before{
+  content:'';position:absolute;inset:0;opacity:.05;
+  background:radial-gradient(ellipse at top left,var(--rc,#fff),transparent 60%);
+}
+.rc-purple{--rc:var(--aura)}
+.rc-mint{--rc:var(--mint)}
+.rc-amber{--rc:var(--amber)}
+.rec-icon{font-size:28px;margin-bottom:12px}
+.rec-title{font-size:14px;font-weight:500;margin-bottom:5px}
+.rec-desc{font-size:12px;color:var(--t2);line-height:1.5}
+.rec-action{
+  display:inline-flex;align-items:center;gap:5px;margin-top:12px;
+  font-size:12px;font-weight:500;
+}
+.rc-purple .rec-action{color:var(--aura-l)}
+.rc-mint .rec-action{color:var(--mint-l)}
+.rc-amber .rec-action{color:var(--amber-l)}
+
+/* ── STREAK CARD ── */
+.streak-card{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:18px;padding:22px;
+  display:flex;align-items:center;gap:20px;margin-bottom:24px;
+  position:relative;overflow:hidden;
+}
+.streak-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at left,rgba(232,149,58,0.07),transparent 50%);
+  pointer-events:none;
+}
+.streak-flame{font-size:48px;flex-shrink:0}
+.streak-info{flex:1}
+.streak-info h2{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:4px}
+.streak-info p{font-size:13px;color:var(--t2)}
+.streak-days{display:flex;gap:6px;margin-top:12px}
+.s-day{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:500;
+}
+.sd-done{background:rgba(232,149,58,0.25);color:var(--amber-l);border:1px solid rgba(232,149,58,0.3)}
+.sd-today{background:var(--amber);color:var(--bg);border:1px solid var(--amber)}
+.sd-pending{background:var(--s3);color:var(--t3);border:1px solid var(--border)}
+.streak-stat{text-align:center;flex-shrink:0}
+.streak-stat .big{font-family:'DM Serif Display',serif;font-size:36px;color:var(--amber-l)}
+.streak-stat .sm{font-size:12px;color:var(--t2)}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(6px);z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--s1);border:1px solid var(--border2);
+  border-radius:24px;padding:28px;width:90%;max-width:560px;
+  transform:translateY(20px);transition:transform .3s;
+  max-height:80vh;overflow-y:auto;
+}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-family:'DM Serif Display',serif;font-size:20px}
+.modal-close{
+  width:30px;height:30px;border-radius:50%;background:var(--s3);border:none;
+  color:var(--t2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;
+  transition:background .2s;
+}
+.modal-close:hover{background:var(--s2);color:var(--text)}
+.modal-section{margin-bottom:18px}
+.modal-section h4{font-size:13px;font-weight:500;color:var(--t2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px;font-size:11px}
+.modal-chip{
+  display:inline-block;padding:4px 12px;border-radius:50px;font-size:12px;
+  background:var(--s2);border:1px solid var(--border2);color:var(--text);margin:3px;
+}
+.modal-text{font-size:14px;color:var(--text);line-height:1.6}
+.modal-risk{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:50px;font-size:13px;font-weight:500;
+  border:1px solid;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(124,92,191,0.25);border-radius:10px}
+
+/* ── ANIMATIONS ── */
+.fade-in{opacity:0;transform:translateY(16px);animation:fadeIn .5s forwards}
+@keyframes fadeIn{to{opacity:1;transform:translateY(0)}}
+.fade-in:nth-child(1){animation-delay:.05s}
+.fade-in:nth-child(2){animation-delay:.1s}
+.fade-in:nth-child(3){animation-delay:.15s}
+.fade-in:nth-child(4){animation-delay:.2s}
+.fade-in:nth-child(5){animation-delay:.25s}
+</style>
+</head>
+<body>
+
+<div class="orbs">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+</div>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="logo-ring"></div>
+    <span class="logo-text">AURA</span>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">Main</div>
+    <div class="sb-item active" onclick="setPage('dashboard',this)">
+      <span class="sb-icon">⬛</span> Dashboard
+    </div>
+    <div class="sb-item" onclick="setPage('chat',this)">
+      <span class="sb-icon">💬</span> Chat with AURA
+    </div>
+    <div class="sb-item" onclick="setPage('sessions',this)">
+      <span class="sb-icon">📋</span> Session History
+      <span class="sb-badge">12</span>
+    </div>
+  </div>
+
+  <div class="sb-section" style="margin-top:8px">
+    <div class="sb-label">Health</div>
+    <div class="sb-item" onclick="setPage('mental',this)">
+      <span class="sb-icon">🧠</span> Mental Health
+    </div>
+    <div class="sb-item" onclick="setPage('physical',this)">
+      <span class="sb-icon">🫀</span> Physical Health
+    </div>
+    <div class="sb-item" onclick="setPage('reports',this)">
+      <span class="sb-icon">📊</span> My Reports
+    </div>
+    <div class="sb-item" onclick="setPage('trends',this)">
+      <span class="sb-icon">📈</span> Trends
+    </div>
+  </div>
+
+  <div class="sb-section" style="margin-top:8px">
+    <div class="sb-label">Account</div>
+    <div class="sb-item" onclick="setPage('settings',this)">
+      <span class="sb-icon">⚙️</span> Settings
+    </div>
+  </div>
+
+  <div class="sb-user">
+    <div class="sb-user-card">
+      <div class="user-av">AR</div>
+      <div>
+        <div class="user-name">Aryan</div>
+        <div class="user-plan">Free plan</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Overview</div>
+    <div class="topbar-right">
+      <div class="tb-notif">
+        🔔
+        <span class="notif-dot"></span>
+      </div>
+      <button class="tb-btn tb-chat" onclick="openChat()">+ New Session</button>
+    </div>
+  </div>
+
+  <div class="content" style="position:relative;z-index:1">
+
+    <!-- GREETING -->
+    <div class="greeting fade-in">
+      <div class="greeting-top">
+        <div>
+          <h1>Good evening, <em>Aryan</em> 👋</h1>
+          <p>Here's your health summary — you've been doing well this week.</p>
+        </div>
+        <div class="mood-check" onclick="openChat()">
+          <span class="mood-pulse"></span>
+          How are you feeling today?
+        </div>
+      </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-row">
+      <div class="stat-card c-purple fade-in">
+        <div class="stat-icon">💬</div>
+        <div class="stat-val">12</div>
+        <div class="stat-label">Total sessions</div>
+        <span class="stat-delta delta-up">+3 this week</span>
+      </div>
+      <div class="stat-card c-mint fade-in">
+        <div class="stat-icon">🧠</div>
+        <div class="stat-val">74%</div>
+        <div class="stat-label">Mental wellness score</div>
+        <span class="stat-delta delta-up">↑ 8pts</span>
+      </div>
+      <div class="stat-card c-amber fade-in">
+        <div class="stat-icon">🫀</div>
+        <div class="stat-val">Low</div>
+        <div class="stat-label">Avg. physical risk</div>
+        <span class="stat-delta delta-up">Improving</span>
+      </div>
+      <div class="stat-card c-rose fade-in">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-val">7</div>
+        <div class="stat-label">Day streak</div>
+        <span class="stat-delta delta-up">Personal best!</span>
+      </div>
+    </div>
+
+    <!-- STREAK -->
+    <div class="streak-card fade-in">
+      <div class="streak-flame">🔥</div>
+      <div class="streak-info">
+        <h2>7-day wellness streak — keep it up!</h2>
+        <p>You've checked in with AURA every day this week. Consistency is healing.</p>
+        <div class="streak-days">
+          <div class="s-day sd-done">M</div>
+          <div class="s-day sd-done">T</div>
+          <div class="s-day sd-done">W</div>
+          <div class="s-day sd-done">T</div>
+          <div class="s-day sd-done">F</div>
+          <div class="s-day sd-done">S</div>
+          <div class="s-day sd-today">S</div>
+          <div class="s-day sd-pending">M</div>
+          <div class="s-day sd-pending">T</div>
+          <div class="s-day sd-pending">W</div>
+        </div>
+      </div>
+      <div class="streak-stat">
+        <div class="big">7</div>
+        <div class="sm">day streak</div>
+      </div>
+    </div>
+
+    <!-- HEALTH SCORE + WEEKLY CHART -->
+    <div class="grid-2 fade-in">
+
+      <!-- Health Score Ring -->
+      <div class="health-score-card">
+        <div class="sec-head">
+          <div class="sec-title">Overall Health Score</div>
+          <span style="font-size:11px;color:var(--t2)">Updated today</span>
+        </div>
+        <div class="score-ring-wrap">
+          <svg class="ring-svg" width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+            <circle cx="55" cy="55" r="46" fill="none" stroke="url(#rg)" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="72"
+              transform="rotate(-90 55 55)"/>
+            <defs>
+              <linearGradient id="rg" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#7C5CBF"/>
+                <stop offset="100%" stop-color="#2DB89A"/>
+              </linearGradient>
+            </defs>
+            <text x="55" y="50" text-anchor="middle" font-size="20" font-weight="500" fill="#EAE8F5" font-family="DM Serif Display, serif">75</text>
+            <text x="55" y="64" text-anchor="middle" font-size="10" fill="#9B98BC" font-family="DM Sans, sans-serif">/100</text>
+          </svg>
+          <div class="ring-info">
+            <h3>Good health overall</h3>
+            <p style="font-size:13px;color:var(--t2);line-height:1.5">Your mental and physical signals are trending positively. Keep your streak going!</p>
+          </div>
+        </div>
+        <div class="score-breakdown">
+          <div class="breakdown-row">
+            <span class="br-label">Mental</span>
+            <div class="br-bar"><div class="br-fill" style="width:74%;background:linear-gradient(90deg,var(--aura),var(--aura-l))"></div></div>
+            <span class="br-val">74</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="br-label">Physical</span>
+            <div class="br-bar"><div class="br-fill" style="width:78%;background:linear-gradient(90deg,var(--mint),var(--mint-l))"></div></div>
+            <span class="br-val">78</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="br-label">Consistency</span>
+            <div class="br-bar"><div class="br-fill" style="width:70%;background:linear-gradient(90deg,var(--amber),var(--amber-l))"></div></div>
+            <span class="br-val">70</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="br-label">Sleep</span>
+            <div class="br-bar"><div class="br-fill" style="width:65%;background:linear-gradient(90deg,var(--blue),var(--blue-l))"></div></div>
+            <span class="br-val">65</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Activity Chart -->
+      <div class="chart-card">
+        <div class="sec-head">
+          <div class="sec-title">Weekly Activity</div>
+        </div>
+        <div class="chart-tabs">
+          <button class="c-tab active" onclick="chartTab(this,'week')">This week</button>
+          <button class="c-tab" onclick="chartTab(this,'month')">Month</button>
+          <button class="c-tab" onclick="chartTab(this,'all')">All time</button>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-bars" id="chart-bars">
+            <!-- rendered by JS -->
+          </div>
+        </div>
+        <div class="chart-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:var(--aura)"></div>Mental</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--amber)"></div>Physical</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SESSION HISTORY + INSIGHTS -->
+    <div class="grid-3 fade-in">
+
+      <!-- Sessions -->
+      <div class="history-card">
+        <div class="sec-head">
+          <div class="sec-title">Recent Sessions</div>
+          <span class="sec-link" onclick="setPage('sessions',null)">View all →</span>
+        </div>
+        <div class="session-list" id="session-list">
+          <!-- rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Insights -->
+      <div class="insights-card">
+        <div class="sec-head">
+          <div class="sec-title">AI Insights</div>
+        </div>
+        <div class="insight-item ii-purple">
+          <div class="insight-label">Pattern detected</div>
+          <div class="insight-text">Your stress spikes every Monday. Consider a Sunday evening wind-down routine.</div>
+        </div>
+        <div class="insight-item ii-mint">
+          <div class="insight-label">Positive trend</div>
+          <div class="insight-text">Headache frequency dropped 40% since you started the neck stretch routine.</div>
+        </div>
+        <div class="insight-item ii-amber">
+          <div class="insight-label">Recommendation</div>
+          <div class="insight-text">You haven't logged water intake this week — dehydration may be worsening your headaches.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SYMPTOM HEATMAP -->
+    <div class="heatmap-card fade-in">
+      <div class="sec-head">
+        <div class="sec-title">Symptom Frequency — Last 12 weeks</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2)">
+          <span>Less</span>
+          <div style="display:flex;gap:3px">
+            <div style="width:14px;height:14px;border-radius:3px;background:var(--s3)"></div>
+            <div style="width:14px;height:14px;border-radius:3px;background:rgba(124,92,191,0.2)"></div>
+            <div style="width:14px;height:14px;border-radius:3px;background:rgba(124,92,191,0.4)"></div>
+            <div style="width:14px;height:14px;border-radius:3px;background:rgba(124,92,191,0.65)"></div>
+            <div style="width:14px;height:14px;border-radius:3px;background:rgba(124,92,191,0.9)"></div>
+          </div>
+          <span>More</span>
+        </div>
+      </div>
+      <div class="heatmap-grid" id="heatmap">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <!-- RECOMMENDATIONS -->
+    <div class="fade-in">
+      <div class="sec-head">
+        <div class="sec-title">Recommended for you</div>
+        <span class="sec-link">Refresh →</span>
+      </div>
+      <div class="rec-grid">
+        <div class="rec-card rc-purple" onclick="openChat()">
+          <div class="rec-icon">🧘</div>
+          <div class="rec-title">Morning meditation</div>
+          <div class="rec-desc">5-min breathing session tailored to your Monday stress pattern.</div>
+          <div class="rec-action">Start now →</div>
+        </div>
+        <div class="rec-card rc-mint" onclick="openChat()">
+          <div class="rec-icon">💧</div>
+          <div class="rec-title">Hydration check-in</div>
+          <div class="rec-desc">Low water intake detected this week. Track and improve with AURA.</div>
+          <div class="rec-action">Log intake →</div>
+        </div>
+        <div class="rec-card rc-amber" onclick="openChat()">
+          <div class="rec-icon">🏥</div>
+          <div class="rec-title">Headache follow-up</div>
+          <div class="rec-desc">Your last session flagged medium risk. Check in on your headache today.</div>
+          <div class="rec-action">Follow up →</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- SESSION DETAIL MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-body">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="m-title">Session Details</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:4px" id="m-date"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="m-content"></div>
+  </div>
+</div>
+
+<script>
+/* ── SIDEBAR NAV ── */
+function setPage(page, el){
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const titles={dashboard:'Overview',chat:'Chat with AURA',sessions:'Session History',mental:'Mental Health',physical:'Physical Health',reports:'My Reports',trends:'Trends & Insights',settings:'Settings'};
+  document.getElementById('page-title').textContent=titles[page]||'Overview';
+}
+function openChat(){
+  alert('Opening AURA chat session...\n\n(In your app, this routes to /chat)');
+}
+
+/* ── CHART ── */
+const weekData=[
+  {day:'Mon',mental:3,physical:1},
+  {day:'Tue',mental:1,physical:0},
+  {day:'Wed',mental:2,physical:2},
+  {day:'Thu',mental:1,physical:1},
+  {day:'Fri',mental:3,physical:0},
+  {day:'Sat',mental:0,physical:1},
+  {day:'Sun',mental:1,physical:0},
+];
+const monthData=[
+  {day:'W1',mental:8,physical:3},
+  {day:'W2',mental:5,physical:6},
+  {day:'W3',mental:9,physical:2},
+  {day:'W4',mental:6,physical:4},
+];
+function renderChart(data){
+  const max=Math.max(...data.map(d=>d.mental+d.physical),1);
+  const h=120;
+  document.getElementById('chart-bars').innerHTML=data.map(d=>{
+    const mh=Math.round((d.mental/max)*h);
+    const ph=Math.round((d.physical/max)*h);
+    return`<div class="chart-bar-col">
+      <div class="bar-stack">
+        ${d.mental>0?`<div class="bar bar-mental" style="height:${mh}px"></div>`:''}
+        ${d.physical>0?`<div class="bar bar-physical" style="height:${ph}px"></div>`:''}
+      </div>
+      <div class="bar-day">${d.day}</div>
+    </div>`;
+  }).join('');
+}
+function chartTab(el,type){
+  document.querySelectorAll('.c-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderChart(type==='week'?weekData:monthData);
+}
+renderChart(weekData);
+
+/* ── SESSIONS ── */
+const sessions=[
+  {id:1,icon:'🧠',type:'si-mental',title:'Stress & work anxiety',date:'Today, 2:34 PM',dur:'12 min',module:'Mental',risk:'none',riskLabel:'—',
+   symptoms:['Work-related stress','Difficulty focusing','Mild anxiety'],
+   response:'Guided breathing (4 min) + coping strategies',
+   notes:'User reported feeling better after breathing exercise. Recommended journaling.'},
+  {id:2,icon:'💫',type:'si-both',title:'Headache + anxiety combined',date:'Yesterday, 11:20 AM',dur:'18 min',module:'Both',risk:'medium',riskLabel:'Medium',
+   symptoms:['Tension headache','Chest tightness','General anxiety'],
+   response:'Breathing → Neck stretch yoga → Risk assessment',
+   notes:'Tension headache assessed as medium risk. Home remedies suggested.'},
+  {id:3,icon:'🫀',type:'si-physical',title:'Chest tightness follow-up',date:'Mar 17, 4:10 PM',dur:'9 min',module:'Physical',risk:'medium',riskLabel:'Medium',
+   symptoms:['Chest tightness','Shortness of breath'],
+   response:'Symptom triage → Home care tips → Nearby clinic found',
+   notes:'Recommended to monitor. No emergency escalation needed.'},
+  {id:4,icon:'🧠',type:'si-mental',title:'Low mood — feeling unmotivated',date:'Mar 16, 9:05 AM',dur:'15 min',module:'Mental',risk:'none',riskLabel:'—',
+   symptoms:['Low mood','Fatigue','Loss of motivation'],
+   response:'Mood check-in → Uplifting content → Journaling prompt',
+   notes:'Mood lifted after content session. Streak maintained.'},
+  {id:5,icon:'🫀',type:'si-physical',title:'Leg cramps after exercise',date:'Mar 15, 7:30 PM',dur:'7 min',module:'Physical',risk:'low',riskLabel:'Low',
+   symptoms:['Leg cramps','Muscle soreness'],
+   response:'Stretching routine → Hydration advice',
+   notes:'Low risk. Stretching + hydration recommended.'},
+];
+
+function renderSessions(){
+  document.getElementById('session-list').innerHTML=sessions.map(s=>`
+    <div class="session-item" onclick="openSession(${s.id})">
+      <div class="sess-icon ${s.type}">${s.icon}</div>
+      <div class="sess-info">
+        <div class="sess-title">${s.title}</div>
+        <div class="sess-meta">
+          <span>${s.module} module</span>
+          <span class="sess-dot"></span>
+          <span>${s.dur}</span>
+        </div>
+      </div>
+      <div class="sess-right">
+        <span class="risk-pill r-${s.risk}">${s.riskLabel}</span>
+        <span class="sess-time">${s.date}</span>
+      </div>
+    </div>
+  `).join('');
+}
+renderSessions();
+
+/* ── SESSION MODAL ── */
+function openSession(id){
+  const s=sessions.find(x=>x.id===id);
+  if(!s)return;
+  document.getElementById('m-title').textContent=s.title;
+  document.getElementById('m-date').textContent=s.date+' · '+s.dur;
+  document.getElementById('m-content').innerHTML=`
+    <div class="modal-section">
+      <h4>Module activated</h4>
+      <span class="modal-chip">${s.module==='Both'?'🧠 Mental + 🫀 Physical':s.module==='Mental'?'🧠 Mental':' 🫀 Physical'}</span>
+      ${s.risk!=='none'?`<br><br><h4>Risk level</h4><span class="modal-risk r-${s.risk}" style="border-color:currentColor">${s.riskLabel==='Medium'?'🟡':'🟢'} ${s.riskLabel} Risk</span>`:''}
+    </div>
+    <div class="modal-section">
+      <h4>Reported symptoms</h4>
+      ${s.symptoms.map(sym=>`<span class="modal-chip">${sym}</span>`).join('')}
+    </div>
+    <div class="modal-section">
+      <h4>AURA response</h4>
+      <p class="modal-text">${s.response}</p>
+    </div>
+    <div class="modal-section">
+      <h4>Session notes</h4>
+      <p class="modal-text" style="color:var(--t2)">${s.notes}</p>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button onclick="closeModal()" style="flex:1;padding:11px;border-radius:50px;background:var(--aura);color:#fff;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer">Repeat this session</button>
+      <button onclick="closeModal()" style="flex:1;padding:11px;border-radius:50px;background:var(--s3);color:var(--t2);border:1px solid var(--border2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Download PDF</button>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(e){
+  if(!e||e.target===document.getElementById('modal')||e.currentTarget===document.querySelector('.modal-close')){
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+
+/* ── HEATMAP ── */
+const symptoms=['Stress','Headache','Anxiety','Chest','Fatigue'];
+const weeks=['','','','','','','','','','','',''];
+function renderHeatmap(){
+  const months=['Oct','Nov','Dec','Jan'];
+  let html=`<div class="hm-months">${months.map(m=>`<div class="hm-month" style="flex:3">${m}</div>`).join('')}</div>`;
+  symptoms.forEach(sym=>{
+    const cells=Array.from({length:12},(_,i)=>{
+      const lvl=Math.floor(Math.random()*5);
+      return`<div class="hm-cell hm-${lvl}" title="${sym} — Week ${i+1}: ${lvl===0?'None':lvl===1?'Mild':lvl===2?'Moderate':lvl===3?'High':'Very high'}"></div>`;
+    }).join('');
+    html+=`<div class="hm-row"><div class="hm-label">${sym}</div><div class="hm-cells">${cells}</div></div>`;
+  });
+  document.getElementById('heatmap').innerHTML=html;
+}
+renderHeatmap();
+</script>
+</body>
+</html>
